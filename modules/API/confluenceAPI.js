@@ -11,7 +11,7 @@ class ConfluenceAPI extends BaseAPI {
     super(
       options.baseURL || process.env.CONFLUENCE_URL,
       options.logString ?? '[inf] ▶ set base API URL:',
-      options.timeout || JSONLoader.APIConfigData.timeout,
+      options.timeout || process.env.TIMEOUT,
       options.headers || {
         Authorization: `Basic ${btoa(`${process.env.CONFLUENCE_LOGIN}:${process.env.CONFLUENCE_TOKEN}`)}`,
       },
@@ -22,30 +22,27 @@ class ConfluenceAPI extends BaseAPI {
     return this.get(`${JSONLoader.config.API.endpoints.confluence.pages}/${pageID}/attachments`);
   }
 
-  async deleteAttachment(attachmentID, { purge = false }) {
+  async deleteAttachment(attachmentID, options = { purge: false }) {
     const params = {
-      purge,
+      purge: options.purge,
     };
 
     return this.delete(`${JSONLoader.config.API.endpoints.confluence.attachments}/${attachmentID}`, params);
   }
 
-  async postAttachment(pageID, dataObj) {
+  async postAttachment(pageID, attachmentName) {
+    const file = new FormData();
+    file.append('content_type', 'multipart/form-data');
+    file.append('file', new Blob([JSON.stringify(JSONLoader[attachmentName.replace('.json', '')], null, 4)], { type: 'application/json' }), attachmentName);
     this.#API = new ConfluenceAPI({
       headers: {
+        Authorization: `Basic ${btoa(`${process.env.CONFLUENCE_LOGIN}:${process.env.CONFLUENCE_TOKEN}`)}`,
         'X-Atlassian-Token': 'nocheck',
+        // 'content-type' : 'multipart/form-data',
       },
     });
 
-    const [name] = Object.keys(dataObj);
-    const attachment = dataObj[name];
-    const file = new FormData();
-    file.append(name, attachment);
-    const params = {
-      file,
-    };
-
-    return this.#API.put(`${JSONLoader.config.API.endpoints.confluence.content}/${pageID}/child/attachment`, params);
+    return this.#API.post(`${JSONLoader.config.API.endpoints.confluence.content}/${pageID}/child/attachment`, file);
   }
 }
 

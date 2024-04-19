@@ -32,10 +32,7 @@ const generateClassInit = (selectedFiles) => `\nclass JSONLoader {\n${selectedFi
   return `\tstatic get ${variableName}() {\n\t\treturn JSON.parse(JSON.stringify(${variableName}));\n\t}\n\n`;
 }).join('')}`;
 
-const generateCollectionsNamesGetter = (selectedFiles) => {
-  const trimmedFileNames = selectedFiles.map((fileName) => fileName.replace(/\.json$/, '')).map((a) => `'${a}'`);
-  return `\tstatic get collectionsNames() {\n\t\treturn [${trimmedFileNames.join(', ')}];\n\t}\n\n`;
-};
+const generateCollectionsNamesGetter = (selectedFiles) => `\tstatic get collectionsNames() {\n\t\treturn [${selectedFiles.map((file) => `'${file}'`).join(', ')}];\n\t}\n\n`;
 
 const generateJSONLoader = (filePath, absoleteDirectory, relativeDirectory, extension) => {
   const files = getFiles(absoleteDirectory, extension);
