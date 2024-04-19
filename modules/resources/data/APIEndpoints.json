@@ -1,7 +1,0 @@
-{
-    "Confluence": {
-        "pages": "api/v2/pages",
-        "content": "rest/api/content",
-        "attachments": "api/v2/attachments"
-    }
-}

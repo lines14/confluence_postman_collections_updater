@@ -2,4 +2,5 @@
 log.txt
 node_modules/
 package-lock.json
-modules/main/utils/data/JSONLoader.js
+modules/config.json
+modules/main/JSONLoader.js

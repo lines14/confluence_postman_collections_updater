@@ -1,5 +1,5 @@
 import axios from 'axios';
-import Logger from '../log/logger.js';
+import Logger from './logger.js';
 
 class BaseAPI {
   #baseURL;
