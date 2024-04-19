@@ -84,7 +84,7 @@ class BaseAPI {
   async delete(endpoint, params) {
     try {
       Logger.log(`[req] ▶ delete ${endpoint} with ${JSON.stringify(params || {})} params`);
-      const response = await  this.#axiosInstance.delete(`/${endpoint}`, params);
+      const response = await this.#axiosInstance.delete(`/${endpoint}`, params);
       Logger.log(`[res]   status code: ${response.status}`);
       return response;
     } catch (error) {

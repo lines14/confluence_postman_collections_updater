@@ -1,10 +1,10 @@
 import JSONLoader from './modules/main/JSONLoader.js';
 import confluenceAPI from './modules/API/confluenceAPI.js';
 
-let response = await confluenceAPI.getAttachments(JSONLoader.config.collectionsPageID);
-const collectionsNames = JSONLoader.collectionsNames;
-console.log({collectionsNames})
-response.data.results
+const response = await confluenceAPI.getAttachments(JSONLoader.config.collectionsPageID);
+const { collectionsNames } = JSONLoader;
+console.log({ collectionsNames });
+response.data.results;
 const postmanCollection = (await confluenceAPI.getAttachmentFile(pageID, attachmentID)).data;
 dataUtils.saveToJSON({ postmanCollection });
 await confluenceAPI.deleteAttachment(1, { purge: true });

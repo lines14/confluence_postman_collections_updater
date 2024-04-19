@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
-import BaseAPI from '../main/utils/API/baseAPI.js';
-import JSONLoader from '../main/utils/data/JSONLoader.js';
+import BaseAPI from '../main/baseAPI.js';
+import JSONLoader from '../main/JSONLoader.js';
 
 dotenv.config({ override: true });
 
@@ -13,28 +13,28 @@ class ConfluenceAPI extends BaseAPI {
       options.logString ?? '[inf] ▶ set base API URL:',
       options.timeout || JSONLoader.APIConfigData.timeout,
       options.headers || {
-        Authorization: `Basic ${btoa(`${process.env.CONFLUENCE_LOGIN}:${process.env.CONFLUENCE_TOKEN}`)}`
+        Authorization: `Basic ${btoa(`${process.env.CONFLUENCE_LOGIN}:${process.env.CONFLUENCE_TOKEN}`)}`,
       },
     );
   }
 
   async getAttachments(pageID) {
-    return this.get(`${JSONLoader.APIEndpoints.Confluence.pages}/${pageID}/attachments`);
+    return this.get(`${JSONLoader.config.API.endpoints.confluence.pages}/${pageID}/attachments`);
   }
 
   async deleteAttachment(attachmentID, { purge = false }) {
     const params = {
-      purge
-    }
+      purge,
+    };
 
-    return this.delete(`${JSONLoader.APIEndpoints.Confluence.attachments}/${attachmentID}`, params);
+    return this.delete(`${JSONLoader.config.API.endpoints.confluence.attachments}/${attachmentID}`, params);
   }
 
   async postAttachment(pageID, dataObj) {
     this.#API = new ConfluenceAPI({
       headers: {
-        'X-Atlassian-Token': 'nocheck'
-      }
+        'X-Atlassian-Token': 'nocheck',
+      },
     });
 
     const [name] = Object.keys(dataObj);
@@ -42,10 +42,10 @@ class ConfluenceAPI extends BaseAPI {
     const file = new FormData();
     file.append(name, attachment);
     const params = {
-      file
-    }
+      file,
+    };
 
-    return this.#API.put(`${JSONLoader.APIEndpoints.Confluence.content}/${pageID}/child/attachment`, params);
+    return this.#API.put(`${JSONLoader.config.API.endpoints.confluence.content}/${pageID}/child/attachment`, params);
   }
 }
 
