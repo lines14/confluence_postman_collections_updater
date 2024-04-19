@@ -36,14 +36,15 @@ const generateCollectionsNamesGetter = (selectedFiles) => {
 };
 
 const generateJSONLoader = (filePath, directory, extension) => {
-  const files = getFiles(configDirectory, extension);
-  const collectionsNamesGetterRequires = generateRequires(files, configDirectory);
-  files.push(...getFiles(directory, extension));
-  const collectionsNamesGetter = generateCollectionsNamesGetter(files);
+  const files = getFiles(directory, extension);
   const requires = generateRequires(files, directory);
+  const collectionsNamesGetter = generateCollectionsNamesGetter(files);
+  const configFile = getFiles(configDirectory, extension);
+  const configFileRequire = generateRequires(configFile, configDirectory);
+  files.push(...configFile);
   const classInit = generateClassInit(files);
   const classExport = '}\n\nexport default JSONLoader;';
-  fs.writeFileSync(filePath, collectionsNamesGetterRequires + requires + classInit + collectionsNamesGetter + classExport);
+  fs.writeFileSync(filePath, configFileRequire + requires + classInit + collectionsNamesGetter + classExport);
 };
 
 const checkEnvExists = (directory, extension) => {
