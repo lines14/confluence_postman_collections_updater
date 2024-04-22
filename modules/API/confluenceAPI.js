@@ -7,6 +7,8 @@ dotenv.config({ override: true });
 class ConfluenceAPI extends BaseAPI {
   #API;
 
+  #options;
+
   constructor(options = {
     baseURL: process.env.CONFLUENCE_URL,
     logString: '[inf] ▶ set base API URL:',
@@ -16,7 +18,7 @@ class ConfluenceAPI extends BaseAPI {
     },
   }) {
     super(options);
-    this.options = options;
+    this.#options = options;
   }
 
   async getAttachments(pageID) {
@@ -32,9 +34,9 @@ class ConfluenceAPI extends BaseAPI {
   }
 
   async postAttachment(pageID, attachmentName) {
-    this.options.headers['X-Atlassian-Token'] = 'nocheck';
-    delete this.options.logString;
-    this.#API = new ConfluenceAPI(this.options);
+    this.#options.headers['X-Atlassian-Token'] = 'nocheck';
+    delete this.#options.logString;
+    this.#API = new ConfluenceAPI(this.#options);
     const params = new FormData();
     params.append('content_type', 'multipart/form-data');
     params.append(
