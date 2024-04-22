@@ -12,11 +12,11 @@ class BaseAPI {
 
   #axiosInstance;
 
-  constructor(baseURL, logString, timeout, headers) {
-    this.#baseURL = baseURL;
-    this.#logString = logString;
-    this.#timeout = timeout;
-    this.#headers = headers;
+  constructor(options) {
+    this.#baseURL = options.baseURL;
+    this.#logString = options.logString;
+    this.#timeout = options.timeout;
+    this.#headers = options.headers;
     this.#axiosInstance = this.createInstance();
   }
 

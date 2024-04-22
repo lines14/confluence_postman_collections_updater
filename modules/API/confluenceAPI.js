@@ -7,15 +7,16 @@ dotenv.config({ override: true });
 class ConfluenceAPI extends BaseAPI {
   #API;
 
-  constructor(options = {}) {
-    super(
-      options.baseURL || process.env.CONFLUENCE_URL,
-      options.logString ?? '[inf] ▶ set base API URL:',
-      options.timeout || process.env.TIMEOUT,
-      options.headers || {
-        Authorization: `Basic ${btoa(`${process.env.CONFLUENCE_LOGIN}:${process.env.CONFLUENCE_TOKEN}`)}`,
-      },
-    );
+  constructor(options = {
+    baseURL: process.env.CONFLUENCE_URL,
+    logString: '[inf] ▶ set base API URL:',
+    timeout: process.env.TIMEOUT,
+    headers: {
+      Authorization: `Basic ${btoa(`${process.env.CONFLUENCE_LOGIN}:${process.env.CONFLUENCE_TOKEN}`)}`,
+    },
+  }) {
+    super(options);
+    this.options = options;
   }
 
   async getAttachments(pageID) {
@@ -31,6 +32,9 @@ class ConfluenceAPI extends BaseAPI {
   }
 
   async postAttachment(pageID, attachmentName) {
+    this.options.headers['X-Atlassian-Token'] = 'nocheck';
+    delete this.options.logString;
+    this.#API = new ConfluenceAPI(this.options);
     const params = new FormData();
     params.append('content_type', 'multipart/form-data');
     params.append(
@@ -38,13 +42,6 @@ class ConfluenceAPI extends BaseAPI {
       new Blob([JSON.stringify(JSONLoader[attachmentName.replace('.json', '')], null, 4)], { type: 'application/json' }),
       attachmentName,
     );
-
-    this.#API = new ConfluenceAPI({
-      headers: {
-        Authorization: `Basic ${btoa(`${process.env.CONFLUENCE_LOGIN}:${process.env.CONFLUENCE_TOKEN}`)}`,
-        'X-Atlassian-Token': 'nocheck',
-      },
-    });
 
     return this.#API.post(`${JSONLoader.config.API.endpoints.confluence.content}/${pageID}/child/attachment`, params);
   }
