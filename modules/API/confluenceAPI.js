@@ -31,12 +31,12 @@ class ConfluenceAPI extends BaseAPI {
   }
 
   async postAttachment(pageID, attachmentName) {
-    const file = new FormData();
-    file.append('content_type', 'multipart/form-data');
-    file.append(
-      attachmentName, 
-      new Blob([JSON.stringify(JSONLoader[attachmentName.replace('.json', '')], null, 4)], { type: 'application/json' }), 
-      attachmentName
+    const params = new FormData();
+    params.append('content_type', 'multipart/form-data');
+    params.append(
+      'file',
+      new Blob([JSON.stringify(JSONLoader[attachmentName.replace('.json', '')], null, 4)], { type: 'application/json' }),
+      attachmentName,
     );
 
     this.#API = new ConfluenceAPI({
@@ -46,7 +46,7 @@ class ConfluenceAPI extends BaseAPI {
       },
     });
 
-    return this.#API.post(`${JSONLoader.config.API.endpoints.confluence.content}/${pageID}/child/attachment`, file);
+    return this.#API.post(`${JSONLoader.config.API.endpoints.confluence.content}/${pageID}/child/attachment`, params);
   }
 }
 
