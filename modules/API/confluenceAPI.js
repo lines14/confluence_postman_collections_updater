@@ -33,12 +33,16 @@ class ConfluenceAPI extends BaseAPI {
   async postAttachment(pageID, attachmentName) {
     const file = new FormData();
     file.append('content_type', 'multipart/form-data');
-    file.append('file', new Blob([JSON.stringify(JSONLoader[attachmentName.replace('.json', '')], null, 4)], { type: 'application/json' }), attachmentName);
+    file.append(
+      attachmentName, 
+      new Blob([JSON.stringify(JSONLoader[attachmentName.replace('.json', '')], null, 4)], { type: 'application/json' }), 
+      attachmentName
+    );
+
     this.#API = new ConfluenceAPI({
       headers: {
         Authorization: `Basic ${btoa(`${process.env.CONFLUENCE_LOGIN}:${process.env.CONFLUENCE_TOKEN}`)}`,
         'X-Atlassian-Token': 'nocheck',
-        // 'content-type' : 'multipart/form-data',
       },
     });
 
