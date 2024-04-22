@@ -1,0 +1,18 @@
+stages:
+  - update
+update:
+  image: node:latest
+  stage: update
+  only:
+    - dev
+  tags:
+    - k8s
+  before_script:
+    - npm install
+    - npm run lint
+  script:
+    - node .collectionsUpdater.js
+  artifacts:
+    expire_in: 1 month
+    paths:
+      - log.txt
