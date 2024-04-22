@@ -8,6 +8,7 @@ update:
   tags:
     - k8s
   before_script:
+    - echo "${UPDATER_ENV}" | tr -d '\r' > ./.env
     - npm install
     - npm run lint
   script:

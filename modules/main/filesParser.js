@@ -51,7 +51,7 @@ const generateJSONLoader = (filePath, absoleteDirectory, relativeDirectory, exte
 
 const checkEnvExists = (directory, extension) => {
   const files = getFiles(directory, extension);
-  if (!files.length) throw new Error('[err]   .env.test file not exists in root directory!');
+  if (!files.length) throw new Error('[err]   .env file not exists in root directory!');
 };
 
 checkEnvExists(envDirectory, '.env');
