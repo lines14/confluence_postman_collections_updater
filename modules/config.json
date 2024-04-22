@@ -1,0 +1,14 @@
+{
+    "hiddenLogBodies": true,
+    "logMaxSizeMegabytes": "5120",
+    "collectionsPageID": "645136387",
+    "API": {
+        "endpoints": {
+            "confluence": {
+                "pages": "api/v2/pages",
+                "content": "rest/api/content",
+                "attachments": "api/v2/attachments"
+            }
+        }
+    }
+}

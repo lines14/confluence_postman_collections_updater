@@ -12,7 +12,6 @@ class ConfluenceAPI extends BaseAPI {
   constructor(options = {
     baseURL: process.env.CONFLUENCE_URL,
     logString: '[inf] ▶ set base API URL:',
-    timeout: process.env.TIMEOUT,
     headers: {
       Authorization: `Basic ${btoa(`${process.env.CONFLUENCE_LOGIN}:${process.env.CONFLUENCE_TOKEN}`)}`,
     },
