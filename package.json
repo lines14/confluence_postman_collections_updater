@@ -15,6 +15,9 @@
         "eslint:fix": "eslint --fix --ext .js .",
         "lint": "npm run config && npm run eslint",
         "lint:fix": "npm run config && npm run eslint:fix",
-        "config": "node ./modules/main/filesParser.js"
+        "config": "node ./modules/main/filesParser.js",
+        "parse": "node ./collectionsParser.js",
+        "publish": "node ./collectionsUpdater.js",
+        "update": "npm run config && npm run parse && npm run publish"
     }
 }
