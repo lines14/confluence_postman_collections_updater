@@ -1,0 +1,103 @@
+{
+    "item": [
+        {
+            "id": "2a3cefa4-a2b1-4411-8bed-e1bf605abedc",
+            "name": "CLIENT",
+            "item": [
+                {
+                    "id": "553f55f1-22f3-4610-8253-4ebb84ea2955",
+                    "name": "get-kdp",
+                    "request": {
+                        "url": {
+                            "path": [
+                                "api",
+                                "client",
+                                "get-access-personal-data"
+                            ],
+                            "host": [
+                                "{{GATEWAY_URL}}"
+                            ],
+                            "query": [
+                                {
+                                    "key": "iin",
+                                    "value": "000111333777"
+                                }
+                            ],
+                            "variable": []
+                        },
+                        "method": "GET",
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "type": "string",
+                                    "value": "{{TOKEN}}",
+                                    "key": "token"
+                                }
+                            ]
+                        }
+                    },
+                    "response": [],
+                    "event": [],
+                    "protocolProfileBehavior": {
+                        "strictSSL": false
+                    }
+                }
+            ],
+            "event": []
+        },
+        {
+            "id": "909ebc2c-2ea2-4a20-a296-67ab1804696a",
+            "name": "ESTATE",
+            "item": [
+                {
+                    "id": "4bc99b59-5c3e-4c15-8172-97b490311e49",
+                    "name": "get premium",
+                    "request": {
+                        "url": {
+                            "path": [
+                                "api",
+                                "estate",
+                                "partners",
+                                "v1",
+                                "get-premium"
+                            ],
+                            "host": [
+                                "{{GATEWAY_URL}}"
+                            ],
+                            "query": [
+                                {
+                                    "disabled": true,
+                                    "key": "estates",
+                                    "value": ""
+                                }
+                            ],
+                            "variable": []
+                        },
+                        "method": "POST",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"details\": {\n        \"estate_type_id\": 1,\n        \"franchise_id\": 2,\n        \"date_begin\": \"01.01.2025\",\n        \"date_end\": \"31.12.2025\"\n    },\n    \"estates\": [\n        {\n            \"id\": \"test1\",\n            \"year\": 2000,\n            \"insurance_sum\": 10000000\n        }\n    ]\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        }
+                    },
+                    "response": [],
+                    "event": []
+                }
+            ],
+            "event": []
+        }
+    ],
+    "event": [],
+    "variable": [],
+    "info": {
+        "_postman_id": "8862d957-dde5-40f2-adc5-bad5b3d4838c",
+        "name": "TEST_AHAHA",
+        "version": null,
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    }
+}
