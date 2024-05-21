@@ -3,8 +3,7 @@ module.exports = {
   env: {
     commonjs: false,
     es2021: true,
-    node: true,
-    mocha: true,
+    node: true
   },
   extends: 'airbnb-base',
   parser: '@babel/eslint-parser',
