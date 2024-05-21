@@ -12,6 +12,7 @@ update:
     - npm install
     - npm run lint
   script:
+    - node -v
     - node ./collectionsUpdater.js
   artifacts:
     expire_in: 1 month
