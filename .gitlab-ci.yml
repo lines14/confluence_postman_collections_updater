@@ -1,7 +1,7 @@
 stages:
   - update
 update:
-  image: node:latest
+  image: node:lts
   stage: update
   only:
     - dev
@@ -12,7 +12,6 @@ update:
     - npm install
     - npm run lint
   script:
-    - node -v
     - node ./collectionsUpdater.js
   artifacts:
     expire_in: 1 month
