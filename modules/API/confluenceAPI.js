@@ -40,7 +40,10 @@ class ConfluenceAPI extends BaseAPI {
     params.append('content_type', 'multipart/form-data');
     params.append(
       'file',
-      new Blob([JSON.stringify(JSONLoader[attachmentName.replace('.json', '')], null, 4)], { type: 'application/json' }),
+      new Blob(
+        [JSON.stringify(JSONLoader[attachmentName.replace('.json', '')], null, 4)],
+        { type: 'application/json' },
+      ),
       attachmentName,
     );
 

@@ -1,4 +1,5 @@
 import postmanCollection from 'postman-collection';
+import Logger from './modules/main/logger.js';
 import DataUtils from './modules/main/dataUtils.js';
 import JSONLoader from './modules/main/JSONLoader.js';
 
@@ -27,14 +28,14 @@ const processItems = (items) => {
   items.each((item) => {
     if (item instanceof Item) {
       const { path } = item.request.url;
-      console.log('Processing item:', item.name, 'Path:', path);
+      Logger.log(`Processing "${item.name}" request path: /${path.join('/')}`);
       if (path && path.length > 1) {
         const folderName = path[1].toUpperCase();
         const folder = getOrCreateFolder(sortedCollection.items.members, folderName);
         folder.items.add(item);
       }
     } else if (item.items) {
-      console.log('Processing folder:', item.name);
+      Logger.log(`Processing folder: ${item.name}`);
       processItems(item.items);
     }
   });
@@ -43,7 +44,7 @@ const processItems = (items) => {
 if (originalCollection.items && originalCollection.items.count() > 0) {
   processItems(originalCollection.items);
 } else {
-  console.error('No items found in the original collection');
+  Logger.log('No items found in the original collection!');
 }
 
 DataUtils.saveToJSON(sortedCollection);
