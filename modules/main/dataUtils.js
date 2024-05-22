@@ -3,7 +3,7 @@ import fs from 'fs';
 class DataUtils {
   static saveToJSON(collection) {
     const replacer = (key, value) => (typeof value === 'undefined' ? null : value);
-    fs.writeFileSync(`./postmanCollections/${collection.name}.json`, JSON.stringify(collection, replacer, 4));
+    fs.writeFileSync(`./output/${collection.name}.json`, JSON.stringify(collection, replacer, 4));
   }
 }
 

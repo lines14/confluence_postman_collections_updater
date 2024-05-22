@@ -1,0 +1,958 @@
+{
+	"info": {
+		"_postman_id": "e16ebfd9-02b0-422a-8390-8506c8eaff25",
+		"name": "ESTATE API PARTNERS",
+		"description": "API продукта \"Имущество\" для партнеров",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "29153804"
+	},
+	"item": [
+		{
+			"name": "Залоговое имущество",
+			"item": [
+				{
+					"name": "auth",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.collectionVariables.set(\"TOKEN\", jsonData.data.access_token);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "login",
+									"value": "test@example.kaz",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{GATEWAY_URL}}/api/login",
+							"host": [
+								"{{GATEWAY_URL}}"
+							],
+							"path": [
+								"api",
+								"login"
+							]
+						},
+						"description": "**Метод используется для авторизации**\n\n[https://gateway-staging.amanat.systems](https://gateway-staging.amanat.systems) - **адрес тестового сервера.**\n\nНа тестовой среде (staging):  \nlogin: [test@example.qaz](https://mailto:test@example.kaz)  \npassword: взять у [https://t.me/erqanvt](https://t.me/erqanvt)\n\nВ ответе получаете токен, который следует использовать для каждого запроса на выписку.  \nТокен надо будет обновлять каждый час (авторизоваться заново), т.к. он действителен только 60 минут.\n\n_Как вариант можете в кэше хранить токен, допустим 59 мин, и когда он уже пустой - заново запрашиваете токен по регламентному заданию (крону)  \n  \nЛибо для каждого запроса на выписку проходите авторизацию заново_"
+					},
+					"response": [
+						{
+							"name": "Успешная авторизация",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "login",
+											"value": "test@example.kaz",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{GATEWAY_URL}}/api/login",
+									"host": [
+										"{{GATEWAY_URL}}"
+									],
+									"path": [
+										"api",
+										"login"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.19.2"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 19 Feb 2024 06:48:18 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Vary",
+									"value": "Accept-Encoding"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "PHP/8.0.30"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "1200"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "1198"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=15724800; includeSubDomains"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "PUT, GET, POST, OPTIONS, PATCH, DELETE"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "Content-Type, X-Process-Key, X-Session-Id, Set-Cookie, Authorization"
+								},
+								{
+									"key": "X-Xss-Protection",
+									"value": "1; mode=block"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Forwarded-Proto",
+									"value": "https"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "upgrade-insecure-requests"
+								},
+								{
+									"key": "Content-Encoding",
+									"value": "gzip"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"access_token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwOi8vYXV0aC1hcGkuYW1hbmF0LXN0YWdpbmcuc3ZjLmNsdXN0ZXIubG9jYWwvYXBpL2xvZ2luIiwiaWF0IjoxNzA4MzI1Mjk4LCJleHAiOjE3MDgzMjg4OTgsIm5iZiI6MTcwODMyNTI5OCwianRpIjoicDJsZnE2WmlIU00yZWJCTSIsInN1YiI6IjEwMDMxMzAiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3IiwicHJvdmlkZXIiOiJ1c2VycyJ9.nL9Q8SYyOPWtZWBC7OimJgOKBlK8cNOi93FUbHsEXeNZFMfuCAa49mfma_2AjxpvHHTCYtWNEsrhXZg-JwX6DRJeCLdues-a4gWdo6MbOdFPVtUkqPYZdkIvfBREFLV5jsBil9EwhhiT3H2ecVsR62k3BXKFxeGV9DHlDqUpEfsL_kKINmWRr6gBMWhOXPzPSM_Pyd8ytqCtOxxQniFRcaE9x68Ec6-oWiQKrZVrdR7XqrA1Tw2yZKt-RY3Yu73v2Z99oEUeB2oGkUMmKMPBgH69DAK2i3Sr44cUrMeHbVTvSCrdegKCfd954Ga7rxXIdFG6jgWtG0haYFIYBCZizBEwDs85oNUDpE1blpnMhe6ZlXONK3Kn8MjWFpYFprEHcDh7ywj2aG0kUhj56gotWBtz_FuT182CjJuNpg9YSygQzo34pMXKBDESJZraW62Xovs9CUOCcPGRv7ay23Jl7brCZyQB7BnfXqAHjz3pdHsp-RXyN_mCYtFxXEU2WMWzhtQbgSrPudMVbBcNeJv2SFvvYN290nJT3Bij2xdhRL7WYx-ZJkM4gOjVos_Hz_xt9c7x9RkkCIS9J2vEpZQDZ1QgWA9UnLr4rPeQ_PAFrVeNARC9jmmMyg0B7Ab5bA8w1e27oV1iwCXKA6qBus1lchGW9MRdEiMAQ5VU7J6gKUY\",\n        \"token_type\": \"bearer\",\n        \"expires_in\": 3600,\n        \"user\": {\n            \"id\": 1003130,\n            \"id_1c\": 1746,\n            \"code\": null,\n            \"id_ext\": 33073296,\n            \"login\": \"test@example.kaz\",\n            \"email\": \"test@example.kaz\",\n            \"manager_id\": 594,\n            \"agent_id\": 1746,\n            \"subagent_id\": null,\n            \"middleman_id\": null,\n            \"name\": \"КЛИЕНТЫ ТЕСТ-ДРАЙВА\",\n            \"last_name\": \"\",\n            \"first_name\": \"\",\n            \"middle_name\": \"\",\n            \"iin\": \"000000000000\",\n            \"mobile_phone\": \"+76665554411\",\n            \"phone\": \"+76665554411\",\n            \"address\": \"Almaty, Kazakhstan, Pushkin street\",\n            \"city\": null,\n            \"filial\": \"Головной офис\",\n            \"filial_id_1c\": 6,\n            \"filial_id_esbd\": 34,\n            \"department\": null,\n            \"division\": null,\n            \"position\": null,\n            \"sales\": \"a-i.kz\",\n            \"resident\": 0,\n            \"external\": 1,\n            \"natural_person_bool\": 0,\n            \"link_to_branch\": 0,\n            \"iik\": \"QZ000000000000000000\",\n            \"bank_name\": \"АО KASPI BANK\",\n            \"bank_bik\": \"CASPKZKA\",\n            \"bank_bin\": \"\",\n            \"document_end_date\": \"2032-01-01 00:00:00\",\n            \"document_start_date\": \"2023-01-01 00:00:00\",\n            \"document_number\": \"test agreement\",\n            \"online\": 1,\n            \"is_pensioner\": 0,\n            \"is_fku\": 0,\n            \"back_link\": null,\n            \"failure_back_link\": null,\n            \"email_verified_at\": null,\n            \"can_terminate\": null,\n            \"can_access_privilege\": null,\n            \"created_at\": \"2024-02-13T07:43:49.000000Z\",\n            \"updated_at\": \"2024-02-13T07:43:49.000000Z\",\n            \"deleted_at\": null,\n            \"agents\": [],\n            \"manager\": {\n                \"id\": 38,\n                \"id_1c\": 594,\n                \"code\": 803,\n                \"id_ext\": null,\n                \"login\": \"y.baktikerey\",\n                \"email\": \"y.baktikerey@a-i.kz\",\n                \"manager_id\": 594,\n                \"agent_id\": null,\n                \"subagent_id\": null,\n                \"middleman_id\": null,\n                \"name\": \"Бақтыкерей Ерқанат Бақытжанұлы\",\n                \"last_name\": \"Бактыкерей\",\n                \"first_name\": \"Ерқанат\",\n                \"middle_name\": \"Бақытжанұлы\",\n                \"iin\": \"911027301256\",\n                \"mobile_phone\": \"8 701 791 45 58\",\n                \"phone\": \"8 701 791 45 58\",\n                \"address\": \"0, Республика Казахстан, Алматинская область, Карасайский район, ЖК \\\"Асыл Арман\\\", дом № 4, к.15\",\n                \"city\": null,\n                \"filial\": \"Головной офис\",\n                \"filial_id_1c\": null,\n                \"filial_id_esbd\": 34,\n                \"department\": \"Отдел сопровождения и разработки ПО\",\n                \"division\": null,\n                \"position\": \"Product manager\",\n                \"sales\": null,\n                \"resident\": 1,\n                \"external\": 0,\n                \"natural_person_bool\": 1,\n                \"link_to_branch\": 0,\n                \"iik\": null,\n                \"bank_name\": null,\n                \"bank_bik\": null,\n                \"bank_bin\": null,\n                \"document_end_date\": null,\n                \"document_start_date\": null,\n                \"document_number\": null,\n                \"online\": 0,\n                \"is_pensioner\": 0,\n                \"is_fku\": 0,\n                \"back_link\": null,\n                \"failure_back_link\": null,\n                \"email_verified_at\": null,\n                \"can_terminate\": null,\n                \"can_access_privilege\": null,\n                \"created_at\": \"2024-02-13T07:43:47.000000Z\",\n                \"updated_at\": \"2024-02-13T11:12:14.000000Z\",\n                \"deleted_at\": null\n            },\n            \"agent\": {\n                \"id\": 1003130,\n                \"id_1c\": 1746,\n                \"code\": null,\n                \"id_ext\": 33073296,\n                \"login\": \"test@example.kaz\",\n                \"email\": \"test@example.kaz\",\n                \"manager_id\": 594,\n                \"agent_id\": 1746,\n                \"subagent_id\": null,\n                \"middleman_id\": null,\n                \"name\": \"КЛИЕНТЫ ТЕСТ-ДРАЙВА\",\n                \"last_name\": \"\",\n                \"first_name\": \"\",\n                \"middle_name\": \"\",\n                \"iin\": \"000000000000\",\n                \"mobile_phone\": \"+76665554411\",\n                \"phone\": \"+76665554411\",\n                \"address\": \"Almaty, Kazakhstan, Pushkin street\",\n                \"city\": null,\n                \"filial\": \"Головной офис\",\n                \"filial_id_1c\": 6,\n                \"filial_id_esbd\": 34,\n                \"department\": null,\n                \"division\": null,\n                \"position\": null,\n                \"sales\": \"a-i.kz\",\n                \"resident\": 0,\n                \"external\": 1,\n                \"natural_person_bool\": 0,\n                \"link_to_branch\": 0,\n                \"iik\": \"QZ000000000000000000\",\n                \"bank_name\": \"АО KASPI BANK\",\n                \"bank_bik\": \"CASPKZKA\",\n                \"bank_bin\": \"\",\n                \"document_end_date\": \"2032-01-01 00:00:00\",\n                \"document_start_date\": \"2023-01-01 00:00:00\",\n                \"document_number\": \"test agreement\",\n                \"online\": 1,\n                \"is_pensioner\": 0,\n                \"is_fku\": 0,\n                \"back_link\": null,\n                \"failure_back_link\": null,\n                \"email_verified_at\": null,\n                \"can_terminate\": null,\n                \"can_access_privilege\": null,\n                \"created_at\": \"2024-02-13T07:43:49.000000Z\",\n                \"updated_at\": \"2024-02-13T07:43:49.000000Z\",\n                \"deleted_at\": null,\n                \"product_accesses\": [\n                    {\n                        \"id\": 42,\n                        \"user_id\": 1003130,\n                        \"product_id\": 135,\n                        \"sales_channel_id_1c\": 4,\n                        \"detailing_id_1c\": 263,\n                        \"online\": 1,\n                        \"sms_verify\": null,\n                        \"sms_block\": 0,\n                        \"created_at\": null,\n                        \"updated_at\": \"2024-02-13T07:43:49.000000Z\"\n                    },\n                    {\n                        \"id\": 741,\n                        \"user_id\": 1003130,\n                        \"product_id\": 0,\n                        \"sales_channel_id_1c\": 0,\n                        \"detailing_id_1c\": 0,\n                        \"online\": 0,\n                        \"sms_verify\": null,\n                        \"sms_block\": 0,\n                        \"created_at\": \"2023-09-04T06:12:10.000000Z\",\n                        \"updated_at\": \"2023-09-04T06:12:10.000000Z\"\n                    }\n                ]\n            },\n            \"deleted_agents\": [],\n            \"subagents\": [],\n            \"product_accesses\": [\n                {\n                    \"id\": 42,\n                    \"user_id\": 1003130,\n                    \"product_id\": 135,\n                    \"sales_channel_id_1c\": 4,\n                    \"detailing_id_1c\": 263,\n                    \"online\": 1,\n                    \"sms_verify\": null,\n                    \"sms_block\": 0,\n                    \"created_at\": null,\n                    \"updated_at\": \"2024-02-13T07:43:49.000000Z\"\n                },\n                {\n                    \"id\": 741,\n                    \"user_id\": 1003130,\n                    \"product_id\": 0,\n                    \"sales_channel_id_1c\": 0,\n                    \"detailing_id_1c\": 0,\n                    \"online\": 0,\n                    \"sms_verify\": null,\n                    \"sms_block\": 0,\n                    \"created_at\": \"2023-09-04T06:12:10.000000Z\",\n                    \"updated_at\": \"2023-09-04T06:12:10.000000Z\"\n                }\n            ],\n            \"roles\": [\n                {\n                    \"id\": 3,\n                    \"title\": \"Agent\",\n                    \"key\": \"agent\",\n                    \"description\": null,\n                    \"created_at\": \"2021-03-15T17:45:25.000000Z\",\n                    \"updated_at\": null,\n                    \"routes\": [],\n                    \"permissions\": []\n                }\n            ],\n            \"permissions\": []\n        },\n        \"ldap\": 0\n    },\n    \"message\": \"User login successfully.\"\n}"
+						}
+					]
+				},
+				{
+					"name": "get-kdp",
+					"protocolProfileBehavior": {
+						"strictSSL": false
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{GATEWAY_URL}}/api/client/get-access-personal-data?iin=000111333777",
+							"host": [
+								"{{GATEWAY_URL}}"
+							],
+							"path": [
+								"api",
+								"client",
+								"get-access-personal-data"
+							],
+							"query": [
+								{
+									"key": "iin",
+									"value": "000111333777"
+								}
+							]
+						},
+						"description": "**Сервис для проверки/отправки согласия по персональным данным клиента в КДП по ИИН**\n\nДоступен по токену после авторизации по логин-паролю.  \nКаждый токен действителен 60 минут.\n\nВ запросе передается ИИН клиента.  \nВ ответе возвращается статус согласия.\n\n> **Код ответа** (200 ОК; остальные - есть ошибка) \n  \n> **success** - true/false  \n**message** - короткая информация  \n**code_esbd** - название статуса  \n**title** - описание статуса  \n**description** - описание того, что делать (call to action) \n  \n\nОтвет false:\n\n``` json\n{\n    \"success\": false,\n    \"message\": \"Нет номера телефона в БМГ\",\n    \"data\": {\n        \"iin\": \"000111333777\",\n        \"note\": null,\n        \"requested_at\": \"2024-02-23T12:47:11.648990Z\",\n        \"status_id\": 5,\n        \"user_id\": 1002365,\n        \"updated_at\": \"2024-02-23T12:47:11.000000Z\",\n        \"created_at\": \"2024-02-23T12:47:11.000000Z\",\n        \"id\": 7,\n        \"status\": {\n            \"id\": 5,\n            \"code_esbd\": \"NOT_FOUND\",\n            \"title\": \"Нет номера телефона в БМГ\",\n            \"description\": \"Добавить номер телефона в базу мобильных граждан очень легко! Как зарегистрировать номер телефона в БМГ*\"\n        }\n    }\n}\n\n ```\n\nОтвет success:\n\n``` json\n{\n    \"success\": true,\n    \"data\": {\n        \"id\": 3,\n        \"iin\": \"911027301256\",\n        \"note\": null,\n        \"requested_at\": \"2024-02-22 18:36:39\",\n        \"status_id\": 2,\n        \"user_id\": 1002365,\n        \"created_at\": \"2024-02-22T12:35:46.000000Z\",\n        \"updated_at\": \"2024-02-22T12:40:03.000000Z\",\n        \"status\": {\n            \"id\": 2,\n            \"code_esbd\": \"VALID\",\n            \"title\": \"Доступ предоставлен\",\n            \"description\": null\n        }\n    },\n    \"message\": \"Доступ предоставлен\"\n}\n\n ```\n\n**Таблица статусов:**\n\n| code_esbd | title | description |\n| --- | --- | --- |\n| VALID | Доступ предоставлен |  |\n| INVALID | Клиент отказал в доступе | Предупредите клиента и отправьте запрос заново |\n| PENDING | Ожидаем подтверждение | У клиента есть 15 минут чтобы подтвердить SMS |\n| TIMEOUT | Время ожидания истекло | Уточните у клиента ситуацию и отправьте запрос снова. Таймер 15 минут |\n| NOT_FOUND | Нет номера телефона в БМГ | Добавить номер телефона в базу мобильных граждан очень легко! [Ссылка](https://digital-id.freshdesk.com/support/solutions/articles/60000676718-%D0%BA%D0%B0%D0%BA-%D0%B7%D0%B0%D1%80%D0%B5%D0%B3%D0%B8%D1%81%D1%82%D1%80%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D1%82%D1%8C-%D0%BD%D0%BE%D0%BC%D0%B5%D1%80-%D1%82%D0%B5%D0%BB%D0%B5%D1%84%D0%BE%D0%BD%D0%B0-%D0%B2-%D0%B1%D0%BC%D0%B3-) |\n| ERROR | Ошибка при отправке SMS | SMS для подтверждения доступа от 1414 не отправлено, попробуйте немного позже.  <br>Если SMS не приходит, клиенту нужно связаться с оператором ЦОН по номеру 1414 |\n| ERROR_TV_NOTRETRIEVED | Ошибка извлечения jwt-токена | 1\\. Попробуйте снова.  <br>2\\. Сообщите ошибку в поддержку:  <br>ERROR_TV_NOTRETRIEVED:  <br>Ошибка невозможно извлечь данные из токена верификации (jwt) |\n| ERROR_TV_BIN_NOTMATCH | company_bin в запросе не равен cbin в токене | 1\\. Попробуйте снова.  <br>2\\. Сообщите ошибку в поддержку:  <br>ERROR_TV_BIN_NOTMATCH:  <br>Ошибка значение параметра cbin в токене верификации не соответствует значением поля company_bin запроса |\n| ERROR_TV_NOTFOUND | mcheck в токене не равен: Bio, Ds, Otp, DID, PC | 1\\. Попробуйте снова.  <br>2\\. Сообщите ошибку в поддержку:  <br>ERROR_TV_NOTFOUND:  <br>Ошибка значение параметра mcheck в токене верификации не равно одному из следующих значений: Bio, Ds, Otp, DID, PC |\n| ERROR_TV_MORECDATE | iat в токене больше текущей даты | 1\\. Попробуйте снова.  <br>2\\. Сообщите ошибку в поддержку:  <br>ERROR_TV_MORECDATE:  <br>Ошибка значение параметра iat в токене верификации больше текущей даты |\n| ERROR_MCDB_SERVICE | Ошибка доступа в БМГ | 1\\. Попробуйте снова.  <br>2\\. Сообщите ошибку в поддержку:  <br>ERROR_MCDB_SERVICE:  <br>Ошибка доступа к сервису База мобильных граждан |\n| ERROR_MGOV_SMS_GW | Ошибка доступа в SMS-шлюз ЭП 1414 | 1\\. Попробуйте снова.  <br>2\\. Сообщите ошибку в поддержку:  <br>ERROR_MGOV_SMS_GW  <br>Ошибка доступа к сервису SMS-шлюз электронного правительства 1414 |\n| ERROR_MISMATCH_BINORNAME | БИН и наименование не соответствуют | Проверьте наименование или БИН компании |"
+					},
+					"response": [
+						{
+							"name": "когда доступ уже есть",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{GATEWAY_URL}}/api/client/get-access-personal-data?iin=911027301256",
+									"host": [
+										"{{GATEWAY_URL}}"
+									],
+									"path": [
+										"api",
+										"client",
+										"get-access-personal-data"
+									],
+									"query": [
+										{
+											"key": "iin",
+											"value": "911027301256"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.19.2"
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 22 Feb 2024 12:40:03 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Vary",
+									"value": "Accept-Encoding"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "PHP/8.0.30"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "PHP/8.2.16"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "1200"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "1199"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=15724800; includeSubDomains"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "PUT, GET, POST, OPTIONS, PATCH, DELETE"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "Content-Type, X-Process-Key, X-Session-Id, Set-Cookie, Authorization"
+								},
+								{
+									"key": "X-Xss-Protection",
+									"value": "1; mode=block"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Forwarded-Proto",
+									"value": "https"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "upgrade-insecure-requests"
+								},
+								{
+									"key": "Content-Encoding",
+									"value": "gzip"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"id\": 3,\n        \"iin\": \"911027301256\",\n        \"note\": null,\n        \"requested_at\": \"2024-02-22 18:36:39\",\n        \"status_id\": 2,\n        \"user_id\": 1002365,\n        \"created_at\": \"2024-02-22T12:35:46.000000Z\",\n        \"updated_at\": \"2024-02-22T12:40:03.000000Z\",\n        \"status\": {\n            \"id\": 2,\n            \"code_esbd\": \"VALID\",\n            \"title\": \"Доступ предоставлен\",\n            \"description\": null\n        }\n    },\n    \"message\": \"Доступ предоставлен\"\n}"
+						},
+						{
+							"name": "не авторизован",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{GATEWAY_URL}}/api/client/get-access-personal-data?iin=000000000000",
+									"host": [
+										"{{GATEWAY_URL}}"
+									],
+									"path": [
+										"api",
+										"client",
+										"get-access-personal-data"
+									],
+									"query": [
+										{
+											"key": "iin",
+											"value": "000000000000"
+										}
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.19.2"
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 23 Feb 2024 12:32:09 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "PHP/8.0.30"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=15724800; includeSubDomains"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "PUT, GET, POST, OPTIONS, PATCH, DELETE"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "Content-Type, X-Process-Key, X-Session-Id, Set-Cookie, Authorization"
+								},
+								{
+									"key": "X-Xss-Protection",
+									"value": "1; mode=block"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Forwarded-Proto",
+									"value": "https"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "upgrade-insecure-requests"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"errors\": \"Unauthenticated\"\n}"
+						},
+						{
+							"name": "нет номера в БМГ",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{GATEWAY_URL}}/api/client/get-access-personal-data?iin=000111333777",
+									"host": [
+										"{{GATEWAY_URL}}"
+									],
+									"path": [
+										"api",
+										"client",
+										"get-access-personal-data"
+									],
+									"query": [
+										{
+											"key": "iin",
+											"value": "000111333777"
+										}
+									]
+								}
+							},
+							"status": "Expectation Failed",
+							"code": 417,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.19.2"
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 23 Feb 2024 12:47:11 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "PHP/8.0.30"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "1200"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "1199"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=15724800; includeSubDomains"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "PUT, GET, POST, OPTIONS, PATCH, DELETE"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "Content-Type, X-Process-Key, X-Session-Id, Set-Cookie, Authorization"
+								},
+								{
+									"key": "X-Xss-Protection",
+									"value": "1; mode=block"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Forwarded-Proto",
+									"value": "https"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "upgrade-insecure-requests"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"message\": \"Нет номера телефона в БМГ\",\n    \"data\": {\n        \"iin\": \"000111333777\",\n        \"note\": null,\n        \"requested_at\": \"2024-02-23T12:47:11.648990Z\",\n        \"status_id\": 5,\n        \"user_id\": 1002365,\n        \"updated_at\": \"2024-02-23T12:47:11.000000Z\",\n        \"created_at\": \"2024-02-23T12:47:11.000000Z\",\n        \"id\": 7,\n        \"status\": {\n            \"id\": 5,\n            \"code_esbd\": \"NOT_FOUND\",\n            \"title\": \"Нет номера телефона в БМГ\",\n            \"description\": \"Добавить номер телефона в базу мобильных граждан очень легко! <a href=\\\"https://digital-id.freshdesk.com/support/solutions/articles/60000676718-%D0%BA%D0%B0%D0%BA-%D0%B7%D0%B0%D1%80%D0%B5%D0%B3%D0%B8%D1%81%D1%82%D1%80%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D1%82%D1%8C-%D0%BD%D0%BE%D0%BC%D0%B5%D1%80-%D1%82%D0%B5%D0%BB%D0%B5%D1%84%D0%BE%D0%BD%D0%B0-%D0%B2-%D0%B1%D0%BC%D0%B3-\\\" target=\\\"_blank\\\">Как зарегистрировать номер телефона в БМГ*</a>\"\n        }\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "get premium",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"details\": {\n        \"estate_type_id\": 1,\n        \"franchise_id\": 2,\n        \"date_begin\": \"01.01.2025\",\n        \"date_end\": \"31.12.2025\"\n    },\n    \"estates\": [\n        {\n            \"id\": \"test1\",\n            \"year\": 2000,\n            \"insurance_sum\": 10000000\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{GATEWAY_URL}}/api/estate/partners/v1/get-premium",
+							"host": [
+								"{{GATEWAY_URL}}"
+							],
+							"path": [
+								"api",
+								"estate",
+								"partners",
+								"v1",
+								"get-premium"
+							],
+							"query": [
+								{
+									"key": "estates",
+									"value": "",
+									"disabled": true
+								}
+							]
+						},
+						"description": "**Метод для расчета вариантов премии**\n\n# REQUEST\n\n## details\n\n`estate_type_id` - тип объекта:  \n1 - жилая недвижимость;  \n2 - коммерческая недвижимость\n\n`franchise_id` - вариант франшизы:  \n1 - 5% по повреждению / 10% утрате;  \n2 - 10% по повреждению / 10% утрате\n\n`date_begin` - дата начала страховой защиты (формат ДД.ММ.ГГГГ)\n\n`date_end` - дата окончания страховой защиты (формат ДД.ММ.ГГГГ)\n\n## estates\n\n`id` - уникальный ID объекта стрхования в разрезе массива estates (когда объектов несколько)\n\n`year` - год постройки имущества  \n`insurance_sum` - страховая сумма имущества\n\n# RESPONSE\n\n`success` - флаг успешного ответа\n\n`message` - сообщение\n\n`data` - объект ответа\n\n## estates\n\nмассив\n\n`id` - аналогичный полю ID из запроса\n\n`year` - аналогично году постройки из запроса  \n`insurance_sum` - аналогично страховой сумме из запроса\n\n### calc\n\n#### max\n\n`tariff` - максимальный тариф\n\n`premium` - максимальная премия\n\n#### agent_commissions\n\nмассив\n\n`id` - ID агентского вознаграждения (АВ)\n\n`title` - наименование АВ\n\n`tariff` - минимальный тариф (5 цифр после запятой)\n\n`premium` - минимальная премия"
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"details\": {\n        \"estate_type_id\": 1,\n        \"franchise_id\": 2,\n        \"date_begin\": \"01.01.2025\",\n        \"date_end\": \"31.12.2025\"\n    },\n    \"estates\": [\n        {\n            \"id\": \"test1\",\n            \"year\": 2000,\n            \"insurance_sum\": 10000000\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{GATEWAY_URL}}/api/estate/partners/v1/get-premium",
+									"host": [
+										"{{GATEWAY_URL}}"
+									],
+									"path": [
+										"api",
+										"estate",
+										"partners",
+										"v1",
+										"get-premium"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.25.1"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "PHP/8.0.30"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 06 Mar 2024 10:36:09 GMT"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "1200"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "1195"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Премия рассчитана\",\n    \"data\": {\n        \"estates\": [\n            {\n                \"id\": \"test1\",\n                \"insurance_sum\": 10000000,\n                \"year\": 2000,\n                \"calc\": {\n                    \"max\": {\n                        \"tariff\": 0.18,\n                        \"premium\": 1800000\n                    },\n                    \"agent_commissions\": [\n                        {\n                            \"id\": 1,\n                            \"title\": \"0%\",\n                            \"tariff\": 0.00125,\n                            \"premium\": 12500\n                        },\n                        {\n                            \"id\": 3,\n                            \"title\": \"10%\",\n                            \"tariff\": 0.00143,\n                            \"premium\": 14300\n                        },\n                        {\n                            \"id\": 5,\n                            \"title\": \"20%\",\n                            \"tariff\": 0.00167,\n                            \"premium\": 16700\n                        },\n                        {\n                            \"id\": 7,\n                            \"title\": \"30%\",\n                            \"tariff\": 0.002,\n                            \"premium\": 20000\n                        },\n                        {\n                            \"id\": 9,\n                            \"title\": \"40%\",\n                            \"tariff\": 0.0025,\n                            \"premium\": 25000\n                        }\n                    ]\n                }\n            }\n        ]\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "set policy",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"draft\": true,\n    \"details\": {\n        \"external_id\": \"246\",\n        \"estate_type_id\": 1,\n        \"insurance_sum_type_id\": 1,\n        \"franchise_id\": 1,\n        \"agent_commission_id\": 1,\n        \"date_begin\": \"01.02.2025\",\n        \"date_end\": \"31.01.2026\",\n        \"insurance_sum\": 10000000,\n        \"premium\": 20000,\n        \"payment\": {\n            \"type_id\": 1,\n            \"order_type_id\": 1,\n            \"count\": 5,\n            \"start_date\": \"01.02.2025\"\n        },\n        \"reliable_object\": true,\n        \"away_of_bazaar\": true,\n        \"not_empty\": true,\n        \"no_ic\": true\n    },\n    \"holder\": {\n        \"iin\": \"880701351146\",\n        \"document_type_id\": 2,\n        \"document_number\": \"19800460\",\n        \"document_gived_date\": \"20.06.2010\",\n        \"document_gived_by\": \"МВД РК\",\n        \"last_name\": \"ХАНАЛИЕВ\",\n        \"first_name\": \"САБАХУДИН\",\n        \"middle_name\": \"ИЗИМЖАНОВИЧ\",\n        \"born\": \"01.07.1988\",\n        \"sex_id\": 1,\n        \"juridical_address\": \"АЛМАТЫ\",\n        \"phone\": \"77761876091\",\n        \"email\": \"a.kalymbekov@a-i.kz\"\n    },\n    \"insured_people\": [\n        {\n            \"iin\": \"880701351146\",\n            \"document_type_id\": 2,\n            \"document_number\": \"19800460\",\n            \"document_gived_date\": \"20.06.2010\",\n            \"document_gived_by\": \"МВД РК\",\n            \"last_name\": \"ХАНАЛИЕВ\",\n            \"first_name\": \"САБАХУДИН\",\n            \"middle_name\": \"ИЗИМЖАНОВИЧ\",\n            \"born\": \"01.07.1988\",\n            \"sex_id\": 1,\n            \"juridical_address\": \"АЛМАТЫ\",\n            \"phone\": \"77761876091\",\n            \"email\": \"a.kalymbekov@a-i.kz\"\n        }\n    ],\n    \"estates\": [\n        {\n            \"year\": 1960,\n            \"address\": \"address60\",\n            \"premium\": 10000,\n            \"category_id\": 1,\n            \"insurance_sum\": 5000000,\n            \"city_id\": 2,\n            \"cadastral_number\": \"00-00-000\",\n            \"office_number\": \"$7\"\n        },\n        {\n            \"year\": 1970,\n            \"address\": \"address70\",\n            \"premium\": 10000,\n            \"category_id\": 2,\n            \"insurance_sum\": 5000000,\n            \"city_id\": 2,\n            \"square\": \"50 m2\"\n        }\n    ],\n    \"damage_beneficiary\": {\n        \"bin\": \"930540000147\"\n    },\n    \"loss_beneficiary\": {\n        \"bin\": \"930540000147\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{GATEWAY_URL}}/api/estate/partners/v1/set-policy",
+							"host": [
+								"{{GATEWAY_URL}}"
+							],
+							"path": [
+								"api",
+								"estate",
+								"partners",
+								"v1",
+								"set-policy"
+							]
+						},
+						"description": "**Метод для выписки полиса**\n\nМожно сразу выписать полис `draft: false`\n\nИли проверить доступность выписки по отправляемым данным в запросе (паспортные данные и прочее) через запись черновика `draft: true`\n\nBest practice: сперва отправить запрос как черновик, если ответ success, то инициировать оплату от клиента; после успешной оплаты отправить запрос на выписку полиса\n\nНиже описание параметров тела запроса.  \nНеобязательные поля обозначены символом \"\\*\"\n\n## details\n\n`draft` - признак черновика true/false\n\n`external_id` - уникальный идентификатор запроса. второй такой запрос не будет записан, если в базе Amanat есть действующий полис с таким external_id. Будет отказано во избежвание создания дублей по страховкам.\n\n`estate_type_id` - тип объекта:  \n1 - жилая недвижимость  \n2 - коммерческая недвижимость\n\n`franchise_id` - тип франшизы:  \n1 = 5% по риску повреждение / 10% по утрате;  \n2 = 10% по риску повреждение / 10% по утрате.\n\n`agent_commission_id` - id агентского вознаграждения (комиссии)\n\n`date_begin` - дата начала страховой защиты (формат ДД.ММ.ГГГГ)\n\n`date_end` - дата окончания страховой защиты (формат ДД.ММ.ГГГГ)\n\n`insurance_sum` - страховая сумма объекта, integer\n\n`premium` - страховая премия, integer\n\n_Ниже обязательные чекбоксы, которые должен подтверить клиент перед страхованием своего имущества:_\n\n`reliable_object` - Конструкция объекта страхования (материал постройки) не деревянная, не саманная, не каркасно-камышитовая, не из SIP-панели\n\n`away_of_bazaar` - Объект страхования не находится на территории базара/рынка и/или в непосредственной близости к ним (150 метров)\n\n`not_empty` - Подтверждаю, что имущество не пустует и не используется в коммерческих целях\n\n`no_ic` - Подтверждаю, что с моим имуществом не происходило страховых случаев за предыдущие 3 года (даже если оно не было застраховано)\n\n## payment\n\n`type_id` - тип оплаты:  \n0 - наличный, 1 - безналичный\n\n`order_type_id` - порядок оплаты:  \n0 - единовременно, 1 - в рассрочку\n\n`count` - количество платежей (только для рассрочки)\n\n`start_date` - дата ежемесячного платежа (только для рассрочки) (формат ДД.ММ.ГГГГ)\n\n## holder\n\nстрахователь\n\n##### физ лицо\n\n`iin` - ИИН\n\n`document_type_id` - тип документа  \n(1 - удостоверение, 2 - паспорт)\n\n`document_number` - номер документа\n\n`document_gived_date` - дата выдачи документа (формат ДД.ММ.ГГГГ)\n\n`document_gived_by` - кем выдан документ\n\n`last_name` - фамилия\n\n`first_name` - имя\n\n`middle_name` - отчество\\*\n\n`born` - дата рождения (формат ДД.ММ.ГГГГ)\n\n`sex_id` - пол: 1 - мужской , 2 - женский\n\n`juridical_address` - юридический адрес\n\n`phone` - мобильный номер\n\n`email` - почтовый адрес (на него придет страховой полис)\n\n`pdl` - признак Публичного должностного лица\\*\n\n##### юр лицо\n\n`bin` - БИН\n\n`juridical_person_name` - наименование юр лица\n\n`pdl` - признак Публичного должностного лица\\*\n\n## insured_people\n\nмассив застрахованных\n\n##### физ лицо\n\n`iin` - ИИН\n\n`document_type_id` - тип документа  \n(1 - удостоверение, 2 - паспорт)\n\n`document_number` - номер документа\n\n`document_gived_date` - дата выдачи документа (формат ДД.ММ.ГГГГ)\n\n`document_gived_by` - кем выдан документ\n\n`last_name` - фамилия\n\n`first_name` - имя\n\n`middle_name` - отчество\\*\n\n`born` - дата рождения (формат ДД.ММ.ГГГГ)\n\n`sex_id` - пол: 1 - мужской , 2 - женский\n\n`juridical_address` - юридический адрес\n\n`phone` - мобильный номер\n\n`email` - почтовый адрес (на него придет страховой полис)\n\n`pdl` - признак Публичного должностного лица\\*\n\n##### юр лицо\n\n`bin` - БИН\n\n`juridical_person_name` - наименование юр лица\n\n`pdl` - признак Публичного должностного лица\\*\n\n## estates\n\nмассив имущества\n\n`year` - год постройки  \n`address` - полный точный адрес объекта страхования  \n`premium` - премия, integer  \n`category_id` - категория имущества (50 - квартира, 51 - Дом (вкл пристройки, зем. участки при наличии))  \n`insurance_sum` - страховая сумма, integer  \n`city_id` - город\\*  \n`office_number` - номер офиса\\*  \n`square` - площадь\\*  \n`cadastral_number` - кадастровый номер\\*\n\n## damage_beneficiary\n\nбенефициар по повреждению\n\n##### физ лицо\n\n`iin` - ИИН\n\n##### юр лицо\n\n`bin` - БИН\n\n## loss_beneficiary\n\nбенефициар по утрате\n\n##### физ лицо\n\n`iin` - ИИН\n\n##### юр лицо\n\n`bin` - БИН"
+					},
+					"response": [
+						{
+							"name": "success (draft)",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"draft\": true,\n    \"details\": {\n        \"external_id\": \"245\",\n        \"estate_type_id\": 1,\n        \"insurance_sum_type_id\": 1,\n        \"franchise_id\": 1,\n        \"agent_commission_id\": 1,\n        \"date_begin\": \"01.02.2025\",\n        \"date_end\": \"31.01.2026\",\n        \"insurance_sum\": 10000000,\n        \"premium\": 20000,\n        \"payment\": {\n            \"type_id\": 1,\n            \"order_type_id\": 1,\n            \"count\": 5,\n            \"start_date\": \"01.02.2025\"\n        },\n        \"reliable_object\": true,\n        \"away_of_bazaar\": true,\n        \"not_empty\": true,\n        \"no_ic\": true\n    },\n    \"holder\": {\n        \"iin\": \"880701351146\",\n        \"document_type_id\": 2,\n        \"document_number\": \"19800460\",\n        \"document_gived_date\": \"20.06.2010\",\n        \"document_gived_by\": \"МВД РК\",\n        \"last_name\": \"ХАНАЛИЕВ\",\n        \"first_name\": \"САБАХУДИН\",\n        \"middle_name\": \"ИЗИМЖАНОВИЧ\",\n        \"born\": \"01.07.1988\",\n        \"sex_id\": 1,\n        \"juridical_address\": \"АЛМАТЫ\",\n        \"phone\": \"77761876091\",\n        \"email\": \"a.kalymbekov@a-i.kz\"\n    },\n    \"insured_people\": [\n        {\n            \"iin\": \"880701351146\",\n            \"document_type_id\": 2,\n            \"document_number\": \"19800460\",\n            \"document_gived_date\": \"20.06.2010\",\n            \"document_gived_by\": \"МВД РК\",\n            \"last_name\": \"ХАНАЛИЕВ\",\n            \"first_name\": \"САБАХУДИН\",\n            \"middle_name\": \"ИЗИМЖАНОВИЧ\",\n            \"born\": \"01.07.1988\",\n            \"sex_id\": 1,\n            \"juridical_address\": \"АЛМАТЫ\",\n            \"phone\": \"77761876091\",\n            \"email\": \"a.kalymbekov@a-i.kz\"\n        }\n    ],\n    \"estates\": [\n        {\n            \"year\": 1960,\n            \"address\": \"address60\",\n            \"premium\": 10000,\n            \"category_id\": 1,\n            \"insurance_sum\": 5000000,\n            \"city_id\": 2,\n            \"cadastral_number\": \"00-00-000\",\n            \"office_number\": \"$7\"\n        },\n        {\n            \"year\": 1970,\n            \"address\": \"address70\",\n            \"premium\": 10000,\n            \"category_id\": 2,\n            \"insurance_sum\": 5000000,\n            \"city_id\": 2,\n            \"square\": \"50 m2\"\n        }\n    ],\n    \"damage_beneficiary\": {\n        \"iin\": \"880701351146\"\n    },\n    \"loss_beneficiary\": {\n        \"iin\": \"880701351146\"\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "localhost:8000/api/estate/partners/v1/set-policy",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"estate",
+										"partners",
+										"v1",
+										"set-policy"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.25.1"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "PHP/8.0.30"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 13 Feb 2024 09:55:26 GMT"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "1200"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "1192"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Черновик полиса выписан\",\n    \"data\": {\n        \"policy_id\": 72,\n        \"external_id\": \"245\"\n    }\n}"
+						},
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"draft\": false,\n    \"details\": {\n        \"external_id\": \"245\",\n        \"estate_type_id\": 1,\n        \"insurance_sum_type_id\": 1,\n        \"franchise_id\": 1,\n        \"agent_commission_id\": 1,\n        \"date_begin\": \"01.02.2025\",\n        \"date_end\": \"31.01.2026\",\n        \"insurance_sum\": 10000000,\n        \"premium\": 20000,\n        \"payment\": {\n            \"type_id\": 1,\n            \"order_type_id\": 1,\n            \"count\": 5,\n            \"start_date\": \"01.02.2025\"\n        },\n        \"reliable_object\": true,\n        \"away_of_bazaar\": true,\n        \"not_empty\": true,\n        \"no_ic\": true\n    },\n    \"holder\": {\n        \"iin\": \"880701351146\",\n        \"document_type_id\": 2,\n        \"document_number\": \"19800460\",\n        \"document_gived_date\": \"20.06.2010\",\n        \"document_gived_by\": \"МВД РК\",\n        \"last_name\": \"ХАНАЛИЕВ\",\n        \"first_name\": \"САБАХУДИН\",\n        \"middle_name\": \"ИЗИМЖАНОВИЧ\",\n        \"born\": \"01.07.1988\",\n        \"sex_id\": 1,\n        \"juridical_address\": \"АЛМАТЫ\",\n        \"phone\": \"77761876091\",\n        \"email\": \"a.kalymbekov@a-i.kz\"\n    },\n    \"insured_people\": [\n        {\n            \"iin\": \"880701351146\",\n            \"document_type_id\": 2,\n            \"document_number\": \"19800460\",\n            \"document_gived_date\": \"20.06.2010\",\n            \"document_gived_by\": \"МВД РК\",\n            \"last_name\": \"ХАНАЛИЕВ\",\n            \"first_name\": \"САБАХУДИН\",\n            \"middle_name\": \"ИЗИМЖАНОВИЧ\",\n            \"born\": \"01.07.1988\",\n            \"sex_id\": 1,\n            \"juridical_address\": \"АЛМАТЫ\",\n            \"phone\": \"77761876091\",\n            \"email\": \"a.kalymbekov@a-i.kz\"\n        }\n    ],\n    \"estates\": [\n        {\n            \"year\": 1960,\n            \"address\": \"address60\",\n            \"premium\": 10000,\n            \"category_id\": 1,\n            \"insurance_sum\": 5000000,\n            \"city_id\": 2,\n            \"cadastral_number\": \"00-00-000\",\n            \"office_number\": \"$7\"\n        },\n        {\n            \"year\": 1970,\n            \"address\": \"address70\",\n            \"premium\": 10000,\n            \"category_id\": 2,\n            \"insurance_sum\": 5000000,\n            \"city_id\": 2,\n            \"square\": \"50 m2\"\n        }\n    ],\n    \"damage_beneficiary\": {\n        \"iin\": \"880701351146\"\n    },\n    \"loss_beneficiary\": {\n        \"iin\": \"880701351146\"\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{GATEWAY_URL}}/api/estate/partners/v1/set-policy",
+									"host": [
+										"{{GATEWAY_URL}}"
+									],
+									"path": [
+										"api",
+										"estate",
+										"partners",
+										"v1",
+										"set-policy"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.25.1"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "PHP/8.0.30"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 13 Feb 2024 09:56:03 GMT"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "1200"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "1179"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Полис выписан\",\n    \"data\": {\n        \"policy_id\": 73,\n        \"policy_number\": \"101-24-759-0000585\",\n        \"external_id\": \"245\",\n        \"esbd_id\": 95849813,\n        \"global_id\": \"0221242D110541W\"\n    }\n}"
+						},
+						{
+							"name": "failed validation",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"draft\": true,\n    \"details\": {\n        \"external_id\": \"246\",\n        \"estate_type_id\": 1,\n        \"insurance_sum_type_id\": 1,\n        \"franchise_id\": 1,\n        \"agent_commission_id\": 1,\n        \"date_begin\": \"01.02.2025\",\n        \"date_end\": \"31.01.2026\",\n        \"insurance_sum\": 10000000,\n        \"premium\": 20000,\n        \"payment\": {\n            \"type_id\": 1,\n            \"order_type_id\": 1,\n            \"count\": 5,\n            \"start_date\": \"01.02.2025\"\n        },\n        \"reliable_object\": true,\n        \"away_of_bazaar\": true,\n        \"not_empty\": true,\n        \"no_ic\": true\n    },\n    \"holder\": {\n        \"iin\": \"880701351146\",\n        \"document_type_id\": 2,\n        \"document_number\": \"19800460\",\n        \"document_gived_date\": \"20.06.20101\",\n        \"document_gived_by\": \"МВД РК\",\n        \"last_name\": \"ХАНАЛИЕВ\",\n        \"middle_name\": \"ИЗИМЖАНОВИЧ\",\n        \"born\": \"01.07.1988\",\n        \"sex_id\": 1,\n        \"juridical_address\": \"АЛМАТЫ\",\n        \"phone\": \"77761876091\",\n        \"email\": \"a.kalymbekov@a-i.kz\"\n    },\n    \"insured_people\": [\n        {\n            \"iin\": \"880701351146\",\n            \"document_type_id\": \"test\",\n            \"document_number\": \"19800460\",\n            \"document_gived_date\": \"20.06.2010\",\n            \"document_gived_by\": \"МВД РК\",\n            \"last_name\": \"ХАНАЛИЕВ\",\n            \"first_name\": \"САБАХУДИН\",\n            \"middle_name\": \"ИЗИМЖАНОВИЧ\",\n            \"born\": \"01.07.1988\",\n            \"sex_id\": 1,\n            \"juridical_address\": \"АЛМАТЫ\",\n            \"phone\": \"77761876091\",\n            \"email\": \"a.kalymbekov@a-i.kz\"\n        }\n    ],\n    \"estates\": [\n        {\n\n        },\n        {\n            \"year\": 1970,\n            \"address\": \"address70\",\n            \"premium\": 10000,\n            \"category_id\": 2,\n            \"insurance_sum\": 5000000,\n            \"city_id\": 2,\n            \"square\": \"50 m2\"\n        }\n    ],\n    \"damage_beneficiary\": {\n       \n    },\n    \"loss_beneficiary\": {\n        \"iin\": \"880701351146\"\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{GATEWAY_URL}}/api/estate/partners/v1/set-policy",
+									"host": [
+										"{{GATEWAY_URL}}"
+									],
+									"path": [
+										"api",
+										"estate",
+										"partners",
+										"v1",
+										"set-policy"
+									]
+								}
+							},
+							"status": "Unprocessable Content",
+							"code": 422,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.25.1"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "PHP/8.0.30"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 14 Feb 2024 02:42:51 GMT"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "1200"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "1192"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"message\": \"Указанные данные недействительны\",\n    \"errors\": {\n        \"holder.document_gived_date\": [\n            \"The holder.document gived date is not a valid date.\"\n        ],\n        \"holder.first_name\": [\n            \"The holder.first name field is required when holder.iin is present.\"\n        ],\n        \"damage_beneficiary\": [\n            \"The damage beneficiary field is required.\"\n        ],\n        \"insured_people.0.document_type_id\": [\n            \"The insured_people.0.document_type_id must be an integer.\"\n        ],\n        \"estates.0.year\": [\n            \"The estates.0.year field is required.\"\n        ],\n        \"estates.0.address\": [\n            \"The estates.0.address field is required.\"\n        ],\n        \"estates.0.premium\": [\n            \"The estates.0.premium field is required.\"\n        ],\n        \"estates.0.category_id\": [\n            \"The estates.0.category_id field is required.\"\n        ],\n        \"estates.0.insurance_sum\": [\n            \"The estates.0.insurance_sum field is required.\"\n        ]\n    }\n}"
+						}
+					]
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{TOKEN}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "GATEWAY_URL",
+			"value": "https://gateway-staging.amanat.systems",
+			"type": "string"
+		},
+		{
+			"key": "TOKEN",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
