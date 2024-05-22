@@ -2,16 +2,14 @@ import postmanCollection from 'postman-collection';
 import DataUtils from './modules/main/dataUtils.js';
 import JSONLoader from './modules/main/JSONLoader.js';
 
-const {
-  Collection, ItemGroup, Item, Request, Url,
-} = postmanCollection;
+const { Collection, ItemGroup, Item } = postmanCollection;
 
-const parsedCollections = JSONLoader.collectionsNames
+const parsedCollections = JSONLoader.inputCollectionNames
   .map((collectionName) => new Collection(JSONLoader[collectionName.replace('.json', '')]));
 const originalCollection = parsedCollections.pop();
 const sortedCollection = new Collection({
   info: {
-    name: 'TEMPLATE',
+    name: 'TEMPLATE_postman_collection',
     schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
   },
 });
