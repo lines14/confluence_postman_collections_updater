@@ -1,11 +1,11 @@
 {
     "item": [
         {
-            "id": "3daa06ad-9920-4593-99ef-7d77dec57b3e",
+            "id": "4779d034-c860-4ee2-ad77-ff5693262cd3",
             "name": "LOGIN",
             "item": [
                 {
-                    "id": "c837ad84-358c-48fc-98da-72f2198db23f",
+                    "id": "074b4b1a-8435-45c7-97e1-6eddad1ab915",
                     "name": "auth",
                     "request": {
                         "description": {
@@ -43,7 +43,7 @@
                             "_": {
                                 "postman_previewlanguage": "json"
                             },
-                            "id": "73fb4250-ac27-4fc1-8138-7d3dcd9ca28a",
+                            "id": "19e96fdb-b566-476f-a3f0-0a0a7af08503",
                             "name": "Успешная авторизация",
                             "originalRequest": {
                                 "url": {
@@ -164,7 +164,7 @@
                         {
                             "listen": "test",
                             "script": {
-                                "id": "36885e52-1997-4ac8-85eb-fed84ab7f806",
+                                "id": "9e04a186-0f82-468a-ba25-cf98c831f91f",
                                 "type": "text/javascript",
                                 "exec": [
                                     "var jsonData = JSON.parse(responseBody);",
@@ -183,11 +183,11 @@
             "event": []
         },
         {
-            "id": "2966d680-1098-4dbd-9d98-87c5f0a2bfa1",
+            "id": "9c78e9b9-40f2-461f-96c5-8d262cb5b036",
             "name": "CLIENT",
             "item": [
                 {
-                    "id": "26964eb4-f409-45a0-97dc-321099a3839f",
+                    "id": "a184d46d-e6c7-4d3b-a23f-74c2a9a7a290",
                     "name": "get-kdp",
                     "request": {
                         "description": {
@@ -228,7 +228,7 @@
                             "_": {
                                 "postman_previewlanguage": "json"
                             },
-                            "id": "f9649eac-ac35-4744-b91f-86283d0b9859",
+                            "id": "86682ab5-fc4e-4fd7-91fe-e50a5e9af284",
                             "name": "когда доступ уже есть",
                             "originalRequest": {
                                 "url": {
@@ -345,7 +345,7 @@
                             "_": {
                                 "postman_previewlanguage": "json"
                             },
-                            "id": "6a192bc0-bc95-4b95-afa8-f08b40c685c5",
+                            "id": "90d24547-e95d-4de3-9c24-946989d204de",
                             "name": "не авторизован",
                             "originalRequest": {
                                 "url": {
@@ -442,7 +442,7 @@
                             "_": {
                                 "postman_previewlanguage": "json"
                             },
-                            "id": "4209fa45-bc11-4be5-a10b-c44a191372f3",
+                            "id": "84fae826-8d9e-41d7-a27e-a1f0fd895c47",
                             "name": "нет номера в БМГ",
                             "originalRequest": {
                                 "url": {
@@ -553,11 +553,11 @@
             "event": []
         },
         {
-            "id": "52d80517-9bf4-4805-aa59-6cadb9c2b4db",
+            "id": "b5c2b51b-6dad-4f5a-bfab-1d86850ed207",
             "name": "ESTATE",
             "item": [
                 {
-                    "id": "c1138c7c-927b-42c9-9022-bbba57ad9de0",
+                    "id": "eb905a46-cd38-4df1-89b1-0ce160357f9c",
                     "name": "get premium",
                     "request": {
                         "description": {
@@ -600,7 +600,7 @@
                             "_": {
                                 "postman_previewlanguage": "json"
                             },
-                            "id": "3c6bd762-7863-441d-9bcb-15b63cd4ade7",
+                            "id": "471c8c16-310d-4f3c-9898-b7ef1267745f",
                             "name": "success",
                             "originalRequest": {
                                 "url": {
@@ -679,7 +679,7 @@
                     "event": []
                 },
                 {
-                    "id": "7658e110-81ef-4101-83d6-8ef94e71efef",
+                    "id": "6148584d-a919-49b5-a253-23a7c4637373",
                     "name": "set policy",
                     "request": {
                         "description": {
@@ -716,7 +716,7 @@
                             "_": {
                                 "postman_previewlanguage": "json"
                             },
-                            "id": "2d6a18ce-334a-4356-bcc3-b753aa91c3cd",
+                            "id": "21bd7fa8-bc1e-4652-aca4-185bfae4ccc7",
                             "name": "success (draft)",
                             "originalRequest": {
                                 "url": {
@@ -796,7 +796,7 @@
                             "_": {
                                 "postman_previewlanguage": "json"
                             },
-                            "id": "5cf4947e-4a3d-43c4-83cb-2a80f93b84b1",
+                            "id": "5a5c8580-8668-4598-9c64-fee578476bd2",
                             "name": "success",
                             "originalRequest": {
                                 "url": {
@@ -875,7 +875,7 @@
                             "_": {
                                 "postman_previewlanguage": "json"
                             },
-                            "id": "8c5b7a4e-523e-4dd3-99ac-abf8f91c18c6",
+                            "id": "89eef5fe-ed69-44f8-acb1-59603fe98850",
                             "name": "failed validation",
                             "originalRequest": {
                                 "url": {
@@ -960,7 +960,7 @@
     "event": [],
     "variable": [],
     "info": {
-        "_postman_id": "5b252334-7ca7-4db2-8a1c-b39549551197",
+        "_postman_id": "d0978044-c542-4bd4-8f65-32fc859feba4",
         "name": "TEMPLATE_postman_collection",
         "version": null,
         "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
