@@ -1,0 +1,9 @@
+{
+    "collectionNamesToParse": ["ESTATE_API_PARTNERS_postman_collection"],
+    "collectionNamesToUpdate": ["TEMPLATE_postman_collection"],
+    "collectionNamesToPublish": ["TEMPLATE_postman_collection"],
+    "collectionSchema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "confluencePageID": "645136387",
+    "hiddenLogBodies": true,
+    "logMaxSizeMegabytes": "5120"
+}

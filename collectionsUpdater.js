@@ -1,18 +1,26 @@
-/* eslint-disable no-await-in-loop */
-/* eslint no-restricted-syntax: ['off', 'ForInStatement'] */
+import postmanCollection from 'postman-collection';
+import Logger from './modules/main/logger.js';
+import DataUtils from './modules/main/dataUtils.js';
 import JSONLoader from './modules/main/JSONLoader.js';
-import confluenceAPI from './modules/API/confluenceAPI.js';
 
-const response = await confluenceAPI.getAttachments(JSONLoader.config.collectionsPageID);
-const attachmentsIDs = JSONLoader.outputCollectionNames
-  .map((collectionName) => response.data.results
-    .filter((element) => element.title === collectionName).pop().id);
+const { Collection } = postmanCollection;
 
-for (const attachmentID of attachmentsIDs) {
-  await confluenceAPI.deleteAttachment(attachmentID);
-  await confluenceAPI.deleteAttachment(attachmentID, { purge: true });
+const fileBodies = JSONLoader.inputFileObjects
+  .filter((fileObj) => JSONLoader.config.collectionNamesToParse.includes(fileObj.fileName))
+  .map((fileObj) => new Collection(JSONLoader[fileObj.fileName]));
+
+const originalCollectionBody = fileBodies.pop();
+const sortedCollectionBody = new Collection({
+  info: {
+    name: 'TEMPLATE_postman_collection',
+    schema: JSONLoader.config.collectionSchema,
+  },
+});
+
+if (originalCollectionBody.items && originalCollectionBody.items.count() > 0) {
+  DataUtils.processItems(sortedCollectionBody, originalCollectionBody);
+} else {
+  Logger.log('No items found in the original collection!');
 }
 
-for (const collectionName of JSONLoader.outputCollectionNames) {
-  await confluenceAPI.postAttachment(JSONLoader.config.collectionsPageID, collectionName);
-}
+DataUtils.saveToJSON(sortedCollectionBody);

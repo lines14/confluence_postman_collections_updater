@@ -6,21 +6,21 @@ const fileLocation = path.join(path.resolve(), './modules/main/JSONLoader.js');
 
 const absoleteInputDirectoryPath = path.relative(path.resolve(), './input');
 const absoleteOutputDirectoryPath = path.relative(path.resolve(), './output');
-const absoleteConfigDirectoryPath = path.relative(path.resolve(), './modules');
+const absoleteResourcesDirectoryPath = path.relative(path.resolve(), './resources');
 
 const relativeInputDirectoryPath = path.relative(path.dirname(new URL(import.meta.url).pathname), './input');
 const relativeOutputDirectoryPath = path.relative(path.dirname(new URL(import.meta.url).pathname), './output');
-const relativeConfigDirectoryPath = path.relative(path.dirname(new URL(import.meta.url).pathname), './modules');
+const relativeResourcesDirectoryPath = path.relative(path.dirname(new URL(import.meta.url).pathname), './resources');
 
 const absoleteDirectoryPathArr = [
   absoleteInputDirectoryPath,
   absoleteOutputDirectoryPath,
-  absoleteConfigDirectoryPath,
+  absoleteResourcesDirectoryPath,
 ];
 const relativeDirectoryPathArr = [
   relativeInputDirectoryPath,
   relativeOutputDirectoryPath,
-  relativeConfigDirectoryPath,
+  relativeResourcesDirectoryPath,
 ];
 
 const getFiles = (dirPath, fileExtension) => {
@@ -30,56 +30,65 @@ const getFiles = (dirPath, fileExtension) => {
     const fullPath = path.join(dirPath, file);
     if (fs.statSync(fullPath).isDirectory()) {
       const nestedDirObject = getFiles(fullPath, fileExtension);
-      files.push(...nestedDirObject.files.map((nestedFile) => path.join(file, nestedFile)));
+      files.push(...nestedDirObject.fileObjects.map((nestedFile) => path.join(file, nestedFile)));
     }
   });
 
-  return { files, dirPath };
+  return { fileObjects: files.map((file) => ({ file })), dirPath };
 };
 
-const generateImports = (dirPathArr, dirObj) => dirObj.files.map((file) => {
-  const variableName = path.parse(file).name;
-  return `import ${variableName} from '${path.join(dirPathArr
-    .filter((dirPath) => dirPath.includes(dirObj.dirPath)).pop() ?? '../', file)}' assert { type: 'json' };\n`;
-}).join('');
+const generateImports = (dirPathArr, dirObj) => dirObj.fileObjects
+  .map((fileObj) => `import ${fileObj.fileName} from '${path.join(dirPathArr
+    .filter((dirPath) => dirPath.includes(dirObj.dirPath)).pop() ?? '../', fileObj.file)}' assert { type: 'json' };\n`)
+  .join('');
 
-const generateClassBody = (dirObjects) => dirObjects.map((dirObj) => `${dirObj.files.map((file) => {
-  const variableName = path.parse(file).name;
-  return `\tstatic get ${variableName}() {\n\t\treturn JSON.parse(JSON.stringify(${variableName}));\n\t}\n\n`;
-})}`).join('');
+const generateClassBody = (dirObjects) => dirObjects.map((dirObj) => `${dirObj.fileObjects
+  .map((fileObj) => `\tstatic get ${fileObj.fileName}() {\n\t\treturn JSON.parse(JSON.stringify(${fileObj.fileName}));\n\t}\n\n`)
+  .join('')}`)
+  .join('');
 
-const generateInputCollectionNamesGetter = (dirObjects) => `\tstatic get inputCollectionNames() {\n\t\treturn [${dirObjects
+const generateInputFileObjectsGetter = (dirObjects) => `\tstatic get inputFileObjects() {\n\t\treturn [${dirObjects
   .filter((dirObj) => dirObj.dirPath.includes('input'))
-  .map((dirObj) => dirObj.files.map((file) => `'${file}'`).join(', '))}];\n\t}\n\n`;
-const generateOutputCollectionNamesGetter = (dirObjects) => `\tstatic get outputCollectionNames() {\n\t\treturn [${dirObjects
-  .filter((dirObj) => dirObj.dirPath.includes('output'))
-  .map((dirObj) => dirObj.files.map((file) => `'${file}'`).join(', '))}];\n\t}\n\n`;
+  .flatMap((dirObj) => dirObj.fileObjects
+    .map((fileObj) => `{file: '${fileObj.file}', fileName: '${fileObj.fileName}'}`)
+    .join(', '))}];\n\t}\n\n`;
 
-const generateJSONLoader = (filePath, absoleteDirPathArr, relativeDirPathArr, fileExtension) => {
-  const dirObjects = absoleteDirPathArr.reduce((filesArr, absoleteDirPath) => filesArr
-    .concat(getFiles(absoleteDirPath, fileExtension)), []);
+const generateOutputFileObjectsGetter = (dirObjects) => `\tstatic get outputFileObjects() {\n\t\treturn [${dirObjects
+  .filter((dirObj) => dirObj.dirPath.includes('output'))
+  .flatMap((dirObj) => dirObj.fileObjects
+    .map((fileObj) => `{file: '${fileObj.file}', fileName: '${fileObj.fileName}'}`)
+    .join(', '))}];\n\t}\n\n`;
+
+const generateJSONLoader = (filePath, absoleteDirPathArr, relativeDirPathArr) => {
+  const fileExtension = '.json';
+  const dirObjects = absoleteDirPathArr.reduce((filesArr, absoleteDirPath) => {
+    const dirObj = getFiles(absoleteDirPath, fileExtension);
+    dirObj.fileObjects = dirObj.fileObjects
+      .map((fileObj) => ({ file: fileObj.file, fileName: fileObj.file.replace(fileExtension, '') }));
+    return filesArr.concat(dirObj);
+  }, []);
   const imports = dirObjects.reduce((importsArr, dirObj) => importsArr
     .concat(generateImports(relativeDirPathArr, dirObj)), []).join('');
   const classInit = '\nclass JSONLoader {\n';
-  const inputCollectionNamesGetter = generateInputCollectionNamesGetter(dirObjects);
-  const outputCollectionNamesGetter = generateOutputCollectionNamesGetter(dirObjects);
+  const inputFileObjectsGetter = generateInputFileObjectsGetter(dirObjects);
+  const outputFileObjectsGetter = generateOutputFileObjectsGetter(dirObjects);
   const classBody = generateClassBody(dirObjects);
   const classExport = '}\n\nexport default JSONLoader;';
   fs.writeFileSync(
     filePath,
     imports
     + classInit
-    + inputCollectionNamesGetter
-    + outputCollectionNamesGetter
+    + inputFileObjectsGetter
+    + outputFileObjectsGetter
     + classBody
     + classExport,
   );
 };
 
-const checkEnvExists = (dirPath, fileExtension) => {
-  const dirObj = getFiles(dirPath, fileExtension);
-  if (!dirObj.files.length) throw new Error('[err]   .env file not exists in root directory!');
+const checkEnvExists = (dirPath) => {
+  const dirObj = getFiles(dirPath, '.env');
+  if (!dirObj.fileObjects.length) throw new Error('[err]   .env file not exists in root directory!');
 };
 
-checkEnvExists(envDirectoryPath, '.env');
-generateJSONLoader(fileLocation, absoleteDirectoryPathArr, relativeDirectoryPathArr, '.json');
+checkEnvExists(envDirectoryPath);
+generateJSONLoader(fileLocation, absoleteDirectoryPathArr, relativeDirectoryPathArr);

@@ -21,7 +21,7 @@ class ConfluenceAPI extends BaseAPI {
   }
 
   async getAttachments(pageID) {
-    return this.get(`${JSONLoader.config.API.endpoints.confluence.pages}/${pageID}/attachments`);
+    return this.get(`${JSONLoader.APIEndpoints.confluence.pages}/${pageID}/attachments`);
   }
 
   async deleteAttachment(attachmentID, options = { purge: false }) {
@@ -29,10 +29,10 @@ class ConfluenceAPI extends BaseAPI {
       purge: options.purge,
     };
 
-    return this.delete(`${JSONLoader.config.API.endpoints.confluence.attachments}/${attachmentID}`, params);
+    return this.delete(`${JSONLoader.APIEndpoints.confluence.attachments}/${attachmentID}`, params);
   }
 
-  async postAttachment(pageID, attachmentName) {
+  async postJSONAttachment(pageID, fileObj) {
     this.#options.headers['X-Atlassian-Token'] = 'nocheck';
     delete this.#options.logString;
     this.#API = new ConfluenceAPI(this.#options);
@@ -41,13 +41,13 @@ class ConfluenceAPI extends BaseAPI {
     params.append(
       'file',
       new Blob(
-        [JSON.stringify(JSONLoader[attachmentName.replace('.json', '')], null, 4)],
+        [JSON.stringify(JSONLoader[fileObj.fileName], null, 4)],
         { type: 'application/json' },
       ),
-      attachmentName,
+      fileObj.file,
     );
 
-    return this.#API.post(`${JSONLoader.config.API.endpoints.confluence.content}/${pageID}/child/attachment`, params);
+    return this.#API.post(`${JSONLoader.APIEndpoints.confluence.content}/${pageID}/child/attachment`, params);
   }
 }
 

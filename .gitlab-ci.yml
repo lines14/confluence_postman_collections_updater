@@ -13,6 +13,7 @@ update:
     - npm run lint
   script:
     - npm run update
+    - npm run publish
   artifacts:
     expire_in: 1 month
     paths:

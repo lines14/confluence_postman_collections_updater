@@ -10,8 +10,8 @@ class DataUtils {
     fs.writeFileSync(`./output/${collection.name}.json`, JSON.stringify(collection, replacer, 4));
   }
 
-  static getOrCreateFolder(sortedCollection, folders, name) {
-    let folder = folders.find((f) => f.name === name);
+  static getOrCreateFolder(sortedCollection, name) {
+    let folder = sortedCollection.items.members.find((f) => f.name === name);
     if (!folder) {
       folder = new ItemGroup({ name });
       sortedCollection.items.add(folder);
@@ -20,19 +20,19 @@ class DataUtils {
     return folder;
   }
 
-  static processItems(sortedCollection, items) {
-    items.each((item) => {
+  static processItems(sortedCollection, originalCollection) {
+    originalCollection.items.each((item) => {
       if (item instanceof Item) {
         const { path } = item.request.url;
         Logger.log(`Processing "${item.name}" request path: /${path.join('/')}`);
         if (path && path.length > 1) {
           const folderName = path[1].toUpperCase();
-          const folder = this.getOrCreateFolder(sortedCollection, sortedCollection.items.members, folderName);
+          const folder = this.getOrCreateFolder(sortedCollection, folderName);
           folder.items.add(item);
         }
       } else if (item.items) {
         Logger.log(`Processing folder: ${item.name}`);
-        this.processItems(sortedCollection, item.items);
+        this.processItems(sortedCollection, item);
       }
     });
   }
