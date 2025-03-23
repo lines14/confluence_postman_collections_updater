@@ -17,10 +17,10 @@ const sortedCollectionBody = new Collection({
   },
 });
 
-if (originalCollectionBody.items && originalCollectionBody.items.count() > 0) {
+if (originalCollectionBody?.items.count() > 0) {
   DataUtils.processItems(sortedCollectionBody, originalCollectionBody);
 } else {
-  Logger.log('No items found in the original collection!');
+  Logger.log('[err]   no items found in the original collection!');
 }
 
 DataUtils.saveToJSON(sortedCollectionBody);
