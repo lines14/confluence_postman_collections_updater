@@ -24,14 +24,14 @@ class DataUtils {
     originalCollection.items.each((item) => {
       if (item instanceof Item) {
         const { path } = item.request.url;
-        Logger.log(`Processing "${item.name}" request path: /${path.join('/')}`);
+        Logger.log(`[inf]   processing "${item.name}" request path: /${path.join('/')}`);
         if (path && path.length > 1) {
           const folderName = path[1].toUpperCase();
           const folder = this.getOrCreateFolder(sortedCollection, folderName);
           folder.items.add(item);
         }
       } else if (item.items) {
-        Logger.log(`Processing folder: ${item.name}`);
+        Logger.log(`[inf]   processing folder: ${item.name}`);
         this.processItems(sortedCollection, item);
       }
     });
