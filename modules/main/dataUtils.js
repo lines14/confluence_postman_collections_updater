@@ -8,6 +8,11 @@ const {
   ItemGroup, Item, PropertyList, QueryParam, FormParam,
 } = postmanCollection;
 
+const HTTPMethods = Object.freeze({
+  GET: Symbol('GET'),
+  POST: Symbol('POST'),
+});
+
 class DataUtils {
   static saveToJSON(collection) {
     const replacer = (key, value) => (typeof value === 'undefined' ? null : value);
@@ -23,7 +28,9 @@ class DataUtils {
   }
 
   static hasExistingQueryProperties(item) {
-    return item.request.method === 'GET' && item.request.url.query && item.request.url.query.count();
+    return item.request.method === HTTPMethods.GET
+    && item.request.url.query
+    && item.request.url.query.count();
   }
 
   static getOrCreateFolder(sortedCollection, name) {
@@ -45,9 +52,13 @@ class DataUtils {
   }
 
   static disableProperties(item) {
-    if (item.request.method === 'POST' && this.hasUrlencodedPropertiesArr(item) && item.request.body.urlencoded.count()) {
+    if (item.request.method === HTTPMethods.POST
+    && this.hasUrlencodedPropertiesArr(item)
+    && item.request.body.urlencoded.count()) {
       item.request.body.urlencoded.all().forEach((property) => { property.disabled = true; });
-    } else if (item.request.method === 'POST' && this.hasFormdataPropertiesArr(item) && item.request.body.formdata.count()) {
+    } else if (item.request.method === HTTPMethods.POST
+    && this.hasFormdataPropertiesArr(item)
+    && item.request.body.formdata.count()) {
       item.request.body.formdata.all().forEach((property) => { property.disabled = true; });
     } else if (this.hasExistingQueryProperties(item)) {
       item.request.url.query.all().forEach((property) => { property.disabled = true; });
@@ -58,8 +69,10 @@ class DataUtils {
     folder.items.all().forEach((existingItem) => {
       if (_.isEqual(existingItem.request.url.path, item.request.url.path)
       && existingItem.name.toUpperCase() === item.name.toUpperCase()) {
-        if (item.request.method === 'POST' && this.hasUrlencodedPropertiesArr(item) && item.request.body.urlencoded.count()) {
-          if (existingItem.request.method === 'POST') {
+        if (item.request.method === HTTPMethods.POST
+        && this.hasUrlencodedPropertiesArr(item)
+        && item.request.body.urlencoded.count()) {
+          if (existingItem.request.method === HTTPMethods.POST) {
             if (this.hasUrlencodedPropertiesArr(existingItem)) {
               existingItem.request.body.urlencoded = this.getListOFUniqueProperties(
                 ...existingItem.request.body.urlencoded.all(),
@@ -72,8 +85,10 @@ class DataUtils {
               );
             }
           }
-        } else if (item.request.method === 'POST' && this.hasFormdataPropertiesArr(item) && item.request.body.formdata.count()) {
-          if (existingItem.request.method === 'POST') {
+        } else if (item.request.method === HTTPMethods.POST
+        && this.hasFormdataPropertiesArr(item)
+        && item.request.body.formdata.count()) {
+          if (existingItem.request.method === HTTPMethods.POST) {
             if (this.hasFormdataPropertiesArr(existingItem)) {
               existingItem.request.body.formdata = this.getListOFUniqueProperties(
                 ...existingItem.request.body.formdata.all(),
@@ -87,7 +102,7 @@ class DataUtils {
             }
           }
         } else if (this.hasExistingQueryProperties(item)) {
-          if (existingItem.request.method === 'GET') {
+          if (existingItem.request.method === HTTPMethods.GET) {
             existingItem.request.url.query = this.getListOFUniqueProperties(
               ...existingItem.request.url.query.all(),
               ...item.request.url.query.all(),
