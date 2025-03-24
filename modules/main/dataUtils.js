@@ -30,6 +30,16 @@ class DataUtils {
     return new PropertyList(itemType, null, uniqueProperties);
   }
 
+  static disableProperties(item) {
+    if (item.request.method === 'POST' && item.request.body && item.request.body.urlencoded && item.request.body.urlencoded.count()) {
+      item.request.body.urlencoded.all().forEach((property) => { property.disabled = true });
+    } else if (item.request.method === 'POST' && item.request.body && item.request.body.formdata && item.request.body.formdata.count()) {
+      item.request.body.formdata.all().forEach((property) => { property.disabled = true });
+    } else if (item.request.method === 'GET' && item.request.url.query && item.request.url.query.count()) {
+      item.request.url.query.all().forEach((property) => { property.disabled = true });
+    }
+  }
+
   static setUniquePropertiesFromSameItem(folder, item) {
     folder.items.all().forEach((existingItem) => {
       if (_.isEqual(existingItem.request.url.path, item.request.url.path) && existingItem.name.toUpperCase() === item.name.toUpperCase()) {
@@ -63,6 +73,7 @@ class DataUtils {
       if (item instanceof Item) {
         const { host, path } = item.request.url;
         Logger.log(`[inf]   processing "${item.name}" request path: /${path.join('/')}`);
+        this.disableProperties(item);
         if (path && path.length > 1) {
           if (host.some((substr) => substr.toUpperCase().includes('GATEWAY'))
             && path[0] !== 'api') {
