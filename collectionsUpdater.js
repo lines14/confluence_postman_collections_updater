@@ -11,7 +11,6 @@ const originalCollectionBodies = JSONLoader.inputFileObjects
     : fileObj))
   .map((fileObj) => new Collection(JSONLoader[fileObj.fileName]));
 
-// const originalCollectionBody = fileBodies.pop();
 const sortedCollectionBody = new Collection({
   info: {
     name: 'TEMPLATE_postman_collection',
