@@ -113,10 +113,14 @@ class DataUtils {
     });
   }
 
+  static startsWithNumberOrLocalhost(str) {
+    return /^\d/.test(str) || str === 'localhost';
+  }
+
   static processItems(sortedCollection, originalCollection) {
     originalCollection.items.each((item) => {
       if (item instanceof Item) {
-        const { host, path } = item.request.url;
+        const { host, path, port } = item.request.url;
         Logger.log(`[inf]   processing "${item.name}" request path: /${path.join('/')}`);
 
         this.disableProperties(item);
@@ -128,8 +132,12 @@ class DataUtils {
           }
 
           let folderName;
-          if (path.length > 2) {
-            folderName = path[0] === 'api' ? path[1].toUpperCase() : host[0].toUpperCase();
+          if (path[0] === 'api') {
+            if (!host[0].toUpperCase().includes('GATEWAY')) {
+              folderName = this.startsWithNumberOrLocalhost(host[0]) ? `PORT_${port}` : host[0].toUpperCase();
+            } else {
+              folderName = path[1].toUpperCase();
+            }
           } else {
             folderName = 'AUTH';
           }
