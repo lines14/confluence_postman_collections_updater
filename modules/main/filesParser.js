@@ -91,7 +91,7 @@ const flattenJSON = (obj) => {
 };
 
 const trimDotsAndSpacesInFileNames = (filename) => {
-  const regex = /[ .]/g;
+  const regex = /[ .\-+]/g;
   if (filename.endsWith(fileExtension)) {
     const lastDotIndex = filename.lastIndexOf('.');
     const name = filename.substring(0, lastDotIndex).replace(regex, '_');

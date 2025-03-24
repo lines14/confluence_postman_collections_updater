@@ -5,11 +5,13 @@ import JSONLoader from './modules/main/JSONLoader.js';
 
 const { Collection } = postmanCollection;
 
-const fileBodies = JSONLoader.inputFileObjects
-  .filter((fileObj) => JSONLoader.config.collectionNamesToParse.includes(fileObj.fileName))
+const originalCollectionBodies = JSONLoader.inputFileObjects
+  .filter((fileObj) => (!JSONLoader.config.parseAll
+    ? JSONLoader.config.collectionNamesToParse.includes(fileObj.fileName)
+    : fileObj))
   .map((fileObj) => new Collection(JSONLoader[fileObj.fileName]));
 
-const originalCollectionBody = fileBodies.pop();
+// const originalCollectionBody = fileBodies.pop();
 const sortedCollectionBody = new Collection({
   info: {
     name: 'TEMPLATE_postman_collection',
@@ -17,10 +19,12 @@ const sortedCollectionBody = new Collection({
   },
 });
 
-if (originalCollectionBody?.items.count() > 0) {
-  DataUtils.processItems(sortedCollectionBody, originalCollectionBody);
-} else {
-  Logger.log('[err]   no items found in the original collection!');
-}
+originalCollectionBodies.forEach((originalCollectionBody) => {
+  if (originalCollectionBody?.items.count() > 0) {
+    DataUtils.processItems(sortedCollectionBody, originalCollectionBody);
+  } else {
+    Logger.log('[err]   no items found in the original collection!');
+  }
+});
 
 DataUtils.saveToJSON(sortedCollectionBody);
