@@ -160,7 +160,7 @@ class DataUtils {
     }
   }
 
-  static fixHostAndPath(item, host, path) {
+  static fixHostAndPath(item, host, port, path) {
     if (host[0].includes('SIGNER')
     || host[0].includes('NOTIFICATION')
     || host[0].includes('MEDPOOL')) {
@@ -168,6 +168,35 @@ class DataUtils {
     } else if (host[0].includes('DICT')
     || path.some((substr) => substr.includes('factors'))) {
       this.hostAndPathModify(item, host, path, { hostOverride: 'dictionary' });
+    } else if (port === '8001') {
+      delete item.request.url.port;
+      delete item.request.url.protocol;
+      this.hostAndPathModify(item, host, path, { hostOverride: 'auth' });
+    } else if (port === '8013') {
+      delete item.request.url.port;
+      delete item.request.url.protocol;
+      this.hostAndPathModify(item, host, path, { hostOverride: 'amanat24' });
+    } else if (port === '8022') {
+      delete item.request.url.port;
+      delete item.request.url.protocol;
+      this.hostAndPathModify(item, host, path, { hostOverride: 'signer' });
+    } else if (item.name.includes('create')
+      && (port === '2023' || port === '2024' || port === '8034')) {
+      delete item.request.url.port;
+      delete item.request.url.protocol;
+      this.hostAndPathModify(item, host, path, { hostOverride: 'europrotocol' });
+    } else if (port === '8024') {
+      delete item.request.url.port;
+      delete item.request.url.protocol;
+      this.hostAndPathModify(item, host, path, { hostOverride: 'edu' });
+    } else if (port === '8030') {
+      delete item.request.url.port;
+      delete item.request.url.protocol;
+      this.hostAndPathModify(item, host, path, { hostOverride: 'docs' });
+    } else if (port === '8035') {
+      delete item.request.url.port;
+      delete item.request.url.protocol;
+      this.hostAndPathModify(item, host, path, { hostOverride: 'claim' });
     } else if (path[1] === 'acquiring') {
       path[1] = 'kaspi';
     } else if (host[0].includes('GOASYNC')) {
@@ -183,7 +212,10 @@ class DataUtils {
     } else if (host.some((substr) => substr.toUpperCase().includes('GATEWAY'))
     || host[0] === '{{URL}}'
     || host[0] === '{{HOST}}'
-    || host[0].includes('AUTH')) {
+    || host[0].includes('AUTH')
+    || port === '8000') {
+      delete item.request.url.port;
+      delete item.request.url.protocol;
       this.setPathBeginning(path);
       item.request.url.host = HostPlaceholders.GATEWAY;
     }
@@ -226,7 +258,7 @@ class DataUtils {
         this.disableProperties(item);
 
         if (path && path.length > 1) {
-          const updatedHost = this.fixHostAndPath(item, host, path);
+          const updatedHost = this.fixHostAndPath(item, host, port, path);
           const folderName = this.getFolderName(updatedHost, port, path);
           const folder = this.getOrCreateFolder(sortedCollection, folderName);
 
