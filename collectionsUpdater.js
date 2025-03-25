@@ -11,12 +11,13 @@ const originalCollectionBodies = JSONLoader.inputFileObjects
     : fileObj))
   .map((fileObj) => new Collection(JSONLoader[fileObj.fileName]));
 
-const sortedCollectionBody = new Collection({
-  info: {
-    name: 'TEMPLATE_postman_collection',
-    schema: JSONLoader.config.collectionSchema,
-  },
-});
+const info = {
+  name: 'TEMPLATE_postman_collection',
+  schema: JSONLoader.config.collectionSchema,
+};
+
+const sortedCollectionBody = new Collection({ info });
+const groupedCollectionBody = new Collection({ info });
 
 originalCollectionBodies.forEach((originalCollectionBody) => {
   if (originalCollectionBody?.items.count() > 0) {
@@ -26,4 +27,5 @@ originalCollectionBodies.forEach((originalCollectionBody) => {
   }
 });
 
-DataUtils.saveToJSON(sortedCollectionBody);
+DataUtils.groupItems(groupedCollectionBody, sortedCollectionBody);
+DataUtils.saveToJSON(groupedCollectionBody);

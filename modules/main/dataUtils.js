@@ -311,6 +311,40 @@ class DataUtils {
       }
     });
   }
+
+  static groupItems(groupedCollection, sortedCollection) {
+    sortedCollection.items.each((folder) => {
+      if (folder instanceof ItemGroup) {
+        Logger.log(`[inf]   processing folder: ${folder.name}`);
+        const parentFolder = this.getOrCreateFolder(groupedCollection, folder.name);
+
+        folder.items.each((item) => {
+          if (item instanceof Item
+                    && item.request
+                    && item.request.url
+                    && item.request.url.path) {
+            const { path } = item.request.url;
+            if (path.length > 3 && path[3] !== '' && !/^\d+$/.test(path[3])) {
+              const subFolderName = path[2].toUpperCase();
+              const subFolder = this.getOrCreateFolder(parentFolder, subFolderName);
+              const subSubFolderName = path[3].toUpperCase();
+              const subSubFolder = this.getOrCreateFolder(subFolder, subSubFolderName);
+              Logger.log(`[inf]   moving "${item.name}" into /${folder.name}/${subFolderName}/${subSubFolderName}`);
+              subSubFolder.items.add(item);
+            } else if (path.length > 2) {
+              const subFolderName = path[2].toUpperCase();
+              const subFolder = this.getOrCreateFolder(parentFolder, subFolderName);
+              Logger.log(`[inf]   moving "${item.name}" into /${folder.name}/${subFolderName}`);
+              subFolder.items.add(item);
+            } else {
+              Logger.log(`[inf]   keeping "${item.name}" inside /${folder.name}`);
+              parentFolder.items.add(item);
+            }
+          }
+        });
+      }
+    });
+  }
 }
 
 export default DataUtils;
