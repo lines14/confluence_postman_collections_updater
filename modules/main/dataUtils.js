@@ -176,6 +176,10 @@ class DataUtils {
       delete item.request.url.port;
       delete item.request.url.protocol;
       this.hostAndPathModify(item, host, path, { hostOverride: 'amanat24' });
+    } else if (port === '8021') {
+      delete item.request.url.port;
+      delete item.request.url.protocol;
+      this.hostAndPathModify(item, host, path, { hostOverride: 'short_link' });
     } else if (port === '8022') {
       delete item.request.url.port;
       delete item.request.url.protocol;
@@ -197,6 +201,10 @@ class DataUtils {
       delete item.request.url.port;
       delete item.request.url.protocol;
       this.hostAndPathModify(item, host, path, { hostOverride: 'claim' });
+    } else if (port === '8036') {
+      delete item.request.url.port;
+      delete item.request.url.protocol;
+      this.hostAndPathModify(item, host, path, { hostOverride: 'signerscript' });
     } else if (path[1] === 'acquiring') {
       path[1] = 'kaspi';
     } else if (host[0].includes('GOASYNC')) {
@@ -241,8 +249,12 @@ class DataUtils {
       } else {
         folderName = path[1].toUpperCase();
       }
-    } else if (host.length > 1 && host[1] === 'amanat24-dev') {
+    } else if (host.length > 1
+      && (host[1] === 'amanat24-dev' || host[1] === 'medpul')) {
       folderName = host[1].replace('-', '_').toUpperCase();
+    } else if (host.length > 1
+      && host[1] === 'amanat') {
+      folderName = host[0].toUpperCase();
     } else {
       folderName = 'AUTH';
     }
@@ -264,7 +276,8 @@ class DataUtils {
 
           if (folder.items.all()
             .some((existingItem) => _.isEqual(existingItem.request.url.path, item.request.url.path)
-            && existingItem.name.toUpperCase() === item.name.toUpperCase())) {
+            && existingItem.name.toUpperCase() === item.name.toUpperCase()
+            && existingItem.request.method === item.request.method)) {
             this.setUniquePropertiesFromSameItem(folder, item);
           } else {
             folder.items.add(item);
