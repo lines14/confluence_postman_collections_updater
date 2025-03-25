@@ -9,8 +9,19 @@ const {
 } = postmanCollection;
 
 const HTTPMethods = Object.freeze({
-  GET: Symbol('GET'),
-  POST: Symbol('POST'),
+  GET: 'GET',
+  POST: 'POST',
+});
+
+const Protocols = Object.freeze({
+  HTTP: 'http',
+  HTTPS: 'https',
+});
+
+const HostPlaceholders = Object.freeze({
+  GATEWAY: ['{{GATEWAY_URL}}'],
+  EDU: ['edu-dev', 'amanat', 'systems'],
+  FILEREPO: ['filerepo', 'dev', 'a-i', 'kz'],
 });
 
 class DataUtils {
@@ -49,20 +60,6 @@ class DataUtils {
 
     const itemType = uniqueProperties[0] instanceof QueryParam ? QueryParam : FormParam;
     return new PropertyList(itemType, null, uniqueProperties);
-  }
-
-  static disableProperties(item) {
-    if (item.request.method === HTTPMethods.POST
-    && this.hasUrlencodedPropertiesArr(item)
-    && item.request.body.urlencoded.count()) {
-      item.request.body.urlencoded.all().forEach((property) => { property.disabled = true; });
-    } else if (item.request.method === HTTPMethods.POST
-    && this.hasFormdataPropertiesArr(item)
-    && item.request.body.formdata.count()) {
-      item.request.body.formdata.all().forEach((property) => { property.disabled = true; });
-    } else if (this.hasExistingQueryProperties(item)) {
-      item.request.url.query.all().forEach((property) => { property.disabled = true; });
-    }
   }
 
   static setUniquePropertiesFromSameItem(folder, item) {
@@ -113,8 +110,112 @@ class DataUtils {
     });
   }
 
+  static disableProperties(item) {
+    if (item.request.method === HTTPMethods.POST
+    && this.hasUrlencodedPropertiesArr(item)
+    && item.request.body.urlencoded.count()) {
+      item.request.body.urlencoded.all().forEach((property) => { property.disabled = true; });
+    } else if (item.request.method === HTTPMethods.POST
+    && this.hasFormdataPropertiesArr(item)
+    && item.request.body.formdata.count()) {
+      item.request.body.formdata.all().forEach((property) => { property.disabled = true; });
+    } else if (this.hasExistingQueryProperties(item)) {
+      item.request.url.query.all().forEach((property) => { property.disabled = true; });
+    }
+  }
+
   static startsWithNumberOrLocalhost(str) {
     return /^\d/.test(str) || str === 'localhost';
+  }
+
+  static trimPlaceholder(str) {
+    return str.replace(/{{|}}/g, '').trim().split('_', 1)[0].toLowerCase();
+  }
+
+  static hostAndPathModify(item, host, path, options = {}) {
+    const trimmedHost = options.hostOverride ?? this.trimPlaceholder(host[0]);
+    item.request.url.host = HostPlaceholders.GATEWAY;
+
+    if (path[0] !== 'api' && path[0] !== trimmedHost) {
+      path.unshift(trimmedHost);
+      path.unshift('api');
+    } else if (path[0] === trimmedHost) {
+      if (path[1] === 'api') {
+        path.splice(1, 1);
+      }
+
+      path.unshift('api');
+    } else if (path[0] === 'api' && path[1] !== trimmedHost) {
+      path.splice(1, 0, trimmedHost);
+    }
+  }
+
+  static setPathBeginning(path) {
+    if (path[0] !== 'api') {
+      if (path[1] === 'api') {
+        path.splice(1, 1);
+      }
+
+      path.unshift('api');
+    }
+  }
+
+  static fixHostAndPath(item, host, path) {
+    if (host[0].includes('SIGNER')
+    || host[0].includes('NOTIFICATION')
+    || host[0].includes('MEDPOOL')) {
+      this.hostAndPathModify(item, host, path);
+    } else if (host[0].includes('DICT')
+    || path.some((substr) => substr.includes('factors'))) {
+      this.hostAndPathModify(item, host, path, { hostOverride: 'dictionary' });
+    } else if (path[1] === 'acquiring') {
+      path[1] = 'kaspi';
+    } else if (host[0].includes('GOASYNC')) {
+      this.hostAndPathModify(item, host, path, { hostOverride: 'async' });
+    } else if (host[0] === '{{API_URL}}') {
+      this.setPathBeginning(path);
+      item.request.url.protocol = Protocols.HTTPS;
+      item.request.url.host = HostPlaceholders.EDU;
+    } else if (host[0].includes('FILEREPO')) {
+      this.setPathBeginning(path);
+      item.request.url.protocol = Protocols.HTTP;
+      item.request.url.host = HostPlaceholders.FILEREPO;
+    } else if (host.some((substr) => substr.toUpperCase().includes('GATEWAY'))
+    || host[0] === '{{URL}}'
+    || host[0] === '{{HOST}}'
+    || host[0].includes('AUTH')) {
+      this.setPathBeginning(path);
+      item.request.url.host = HostPlaceholders.GATEWAY;
+    }
+
+    return item.request.url.host;
+  }
+
+  static getFolderName(host, port, path) {
+    let folderName;
+    if (path.length > 2
+    && (path[0] === 'api' || path[0] === 'clients')
+    && path[1] !== 'user'
+    && path[1] !== 'documents'
+    && path[1] !== 'temp-users') {
+      if (!host[0].toUpperCase().includes('GATEWAY')) {
+        if (this.startsWithNumberOrLocalhost(host[0])) {
+          folderName = `PORT_${port}`;
+        } else if (host.length >= 3 && host[1] !== 'amanat' && host[2] !== 'a-i') {
+          folderName = `${host[1].toUpperCase()}_${host[2].toUpperCase()}`;
+        } else {
+          folderName = host[0].toUpperCase();
+        }
+      } else {
+        folderName = path[1].toUpperCase();
+      }
+    } else if (host.length > 1 && host[1] === 'amanat24-dev') {
+      folderName = host[1].replace('-', '_').toUpperCase();
+    } else {
+      folderName = 'AUTH';
+    }
+
+    return folderName;
   }
 
   static processItems(sortedCollection, originalCollection) {
@@ -122,26 +223,11 @@ class DataUtils {
       if (item instanceof Item) {
         const { host, path, port } = item.request.url;
         Logger.log(`[inf]   processing "${item.name}" request path: /${path.join('/')}`);
-
         this.disableProperties(item);
 
         if (path && path.length > 1) {
-          if (host.some((substr) => substr.toUpperCase().includes('GATEWAY'))
-            && path[0] !== 'api') {
-            path.unshift('api');
-          }
-
-          let folderName;
-          if (path[0] === 'api') {
-            if (!host[0].toUpperCase().includes('GATEWAY')) {
-              folderName = this.startsWithNumberOrLocalhost(host[0]) ? `PORT_${port}` : host[0].toUpperCase();
-            } else {
-              folderName = path[1].toUpperCase();
-            }
-          } else {
-            folderName = 'AUTH';
-          }
-
+          const updatedHost = this.fixHostAndPath(item, host, path);
+          const folderName = this.getFolderName(updatedHost, port, path);
           const folder = this.getOrCreateFolder(sortedCollection, folderName);
 
           if (folder.items.all()
