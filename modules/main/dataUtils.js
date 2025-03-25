@@ -65,7 +65,8 @@ class DataUtils {
   static setUniquePropertiesFromSameItem(folder, item) {
     folder.items.all().forEach((existingItem) => {
       if (_.isEqual(existingItem.request.url.path, item.request.url.path)
-      && existingItem.name.toUpperCase() === item.name.toUpperCase()) {
+      && existingItem.name.toUpperCase() === item.name.toUpperCase()
+      && existingItem.request.method === item.request.method) {
         if (item.request.method === HTTPMethods.POST
         && this.hasUrlencodedPropertiesArr(item)
         && item.request.body.urlencoded.count()) {
@@ -75,7 +76,7 @@ class DataUtils {
                 ...existingItem.request.body.urlencoded.all(),
                 ...item.request.body.urlencoded.all(),
               );
-            } else {
+            } else if (this.hasFormdataPropertiesArr(existingItem)) {
               existingItem.request.body.formdata = this.getListOFUniqueProperties(
                 ...existingItem.request.body.formdata.all(),
                 ...item.request.body.urlencoded.all(),
@@ -91,7 +92,7 @@ class DataUtils {
                 ...existingItem.request.body.formdata.all(),
                 ...item.request.body.formdata.all(),
               );
-            } else {
+            } else if (this.hasUrlencodedPropertiesArr(existingItem)) {
               existingItem.request.body.urlencoded = this.getListOFUniqueProperties(
                 ...existingItem.request.body.urlencoded.all(),
                 ...item.request.body.formdata.all(),
