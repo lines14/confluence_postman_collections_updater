@@ -5,7 +5,7 @@ import postmanCollection from 'postman-collection';
 import Logger from './logger.js';
 
 const {
-  ItemGroup, Item, PropertyList, QueryParam, FormParam,
+  ItemGroup, Item, PropertyList, QueryParam, FormParam, Response,
 } = postmanCollection;
 
 const HTTPMethods = Object.freeze({
@@ -54,12 +54,19 @@ class DataUtils {
     return folder;
   }
 
-  static getListOFUniqueProperties(...propertyList) {
-    const uniqueProperties = [...propertyList].filter((item, index, arr) => index === arr
-      .findIndex((foundItem) => foundItem.key === item.key && foundItem.value === item.value));
+  static getListOfUniqueProperties(...propertyList) {
+    const uniqueProperties = propertyList.filter((propertyPair, index, arr) => index === arr
+      .findIndex((foundPropertyPair) => foundPropertyPair.key === propertyPair.key
+      && foundPropertyPair.value === propertyPair.value));
 
     const itemType = uniqueProperties[0] instanceof QueryParam ? QueryParam : FormParam;
     return new PropertyList(itemType, null, uniqueProperties);
+  }
+
+  static getListOfUniqueResponseTemplates(...responseTemplateList) {
+    responseTemplateList.forEach((responseTemplate) => { delete responseTemplate.id; });
+    const uniqueResponses = _.uniqWith(responseTemplateList, _.isEqual);
+    return new PropertyList(Response, null, uniqueResponses);
   }
 
   static setUniquePropertiesFromSameItem(folder, item) {
@@ -72,12 +79,12 @@ class DataUtils {
         && item.request.body.urlencoded.count()) {
           if (existingItem.request.method === HTTPMethods.POST) {
             if (this.hasUrlencodedPropertiesArr(existingItem)) {
-              existingItem.request.body.urlencoded = this.getListOFUniqueProperties(
+              existingItem.request.body.urlencoded = this.getListOfUniqueProperties(
                 ...existingItem.request.body.urlencoded.all(),
                 ...item.request.body.urlencoded.all(),
               );
             } else if (this.hasFormdataPropertiesArr(existingItem)) {
-              existingItem.request.body.formdata = this.getListOFUniqueProperties(
+              existingItem.request.body.formdata = this.getListOfUniqueProperties(
                 ...existingItem.request.body.formdata.all(),
                 ...item.request.body.urlencoded.all(),
               );
@@ -88,12 +95,12 @@ class DataUtils {
         && item.request.body.formdata.count()) {
           if (existingItem.request.method === HTTPMethods.POST) {
             if (this.hasFormdataPropertiesArr(existingItem)) {
-              existingItem.request.body.formdata = this.getListOFUniqueProperties(
+              existingItem.request.body.formdata = this.getListOfUniqueProperties(
                 ...existingItem.request.body.formdata.all(),
                 ...item.request.body.formdata.all(),
               );
             } else if (this.hasUrlencodedPropertiesArr(existingItem)) {
-              existingItem.request.body.urlencoded = this.getListOFUniqueProperties(
+              existingItem.request.body.urlencoded = this.getListOfUniqueProperties(
                 ...existingItem.request.body.urlencoded.all(),
                 ...item.request.body.formdata.all(),
               );
@@ -101,12 +108,25 @@ class DataUtils {
           }
         } else if (this.hasExistingQueryProperties(item)) {
           if (existingItem.request.method === HTTPMethods.GET) {
-            existingItem.request.url.query = this.getListOFUniqueProperties(
+            existingItem.request.url.query = this.getListOfUniqueProperties(
               ...existingItem.request.url.query.all(),
               ...item.request.url.query.all(),
             );
           }
         }
+      }
+    });
+  }
+
+  static setUniqueResponseTemplatesFromSameItem(folder, item) {
+    folder.items.all().forEach((existingItem) => {
+      if (_.isEqual(existingItem.request.url.path, item.request.url.path)
+      && existingItem.name.toUpperCase() === item.name.toUpperCase()
+      && existingItem.request.method === item.request.method) {
+        existingItem.responses = this.getListOfUniqueResponseTemplates(
+          ...existingItem.responses.all(),
+          ...item.responses.all(),
+        );
       }
     });
   }
@@ -279,6 +299,7 @@ class DataUtils {
             .some((existingItem) => _.isEqual(existingItem.request.url.path, item.request.url.path)
             && existingItem.name.toUpperCase() === item.name.toUpperCase()
             && existingItem.request.method === item.request.method)) {
+            this.setUniqueResponseTemplatesFromSameItem(folder, item);
             this.setUniquePropertiesFromSameItem(folder, item);
           } else {
             folder.items.add(item);
