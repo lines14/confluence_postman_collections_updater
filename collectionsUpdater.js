@@ -52,5 +52,6 @@ DataUtils.setUniqueEnvVariablesFromAllCollections(
   originalCollections,
 );
 
+DataUtils.moveAuthMethodToRoot(testProductsCollection, testServicesCollection);
 DataUtils.saveToJSON(testProductsCollection);
 DataUtils.saveToJSON(testServicesCollection);

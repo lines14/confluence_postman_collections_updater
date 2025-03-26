@@ -371,6 +371,21 @@ class DataUtils {
     productsCollection.variables = uniqueVariables;
     servicesCollection.variables = uniqueVariables;
   }
+
+  static moveAuthMethodToRoot(productsCollection, servicesCollection) {
+    const itemName = 'Auth';
+    const foundFolder = servicesCollection.items
+      .find((folder) => folder.name === itemName.toUpperCase());
+    if (foundFolder) {
+      const foundItemIndex = foundFolder.items.members.findIndex((item) => item.name === itemName);
+      if (foundItemIndex !== -1) {
+        const [foundItem] = foundFolder.items.members.splice(foundItemIndex, 1);
+        servicesCollection.items.members.unshift(foundItem);
+        productsCollection.items.members.unshift(foundItem);
+        Logger.log(`[inf]   moving item "${itemName}" from folder "${foundFolder.name}" to root`);
+      }
+    }
+  }
 }
 
 export default DataUtils;
