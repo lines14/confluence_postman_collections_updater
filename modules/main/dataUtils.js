@@ -149,6 +149,10 @@ class DataUtils {
     return /^\d/.test(str) || str === 'localhost';
   }
 
+  static notEmptyOrHasNumber(str) {
+    return str.toLowerCase().startsWith('v') || (str !== '' && !/\d/.test(str));
+  }
+
   static trimPlaceholder(str) {
     return str.replace(/{{|}}/g, '').trim().split('_', 1)[0].toLowerCase();
   }
@@ -320,18 +324,20 @@ class DataUtils {
 
         folder.items.each((item) => {
           if (item instanceof Item
-                    && item.request
-                    && item.request.url
-                    && item.request.url.path) {
+          && item.request
+          && item.request.url
+          && item.request.url.path) {
             const { path } = item.request.url;
-            if (path.length > 3 && path[3] !== '' && !/^\d+$/.test(path[3])) {
+            if (path.length > 3
+            && this.notEmptyOrHasNumber(path[3])
+            && this.notEmptyOrHasNumber(path[2])) {
               const subFolderName = path[2].toUpperCase();
               const subFolder = this.getOrCreateFolder(parentFolder, subFolderName);
               const subSubFolderName = path[3].toUpperCase();
               const subSubFolder = this.getOrCreateFolder(subFolder, subSubFolderName);
               Logger.log(`[inf]   moving "${item.name}" into /${folder.name}/${subFolderName}/${subSubFolderName}`);
               subSubFolder.items.add(item);
-            } else if (path.length > 2) {
+            } else if (path.length > 2 && this.notEmptyOrHasNumber(path[2])) {
               const subFolderName = path[2].toUpperCase();
               const subFolder = this.getOrCreateFolder(parentFolder, subFolderName);
               Logger.log(`[inf]   moving "${item.name}" into /${folder.name}/${subFolderName}`);
