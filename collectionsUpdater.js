@@ -11,13 +11,25 @@ const originalCollectionBodies = JSONLoader.inputFileObjects
     : fileObj))
   .map((fileObj) => new Collection(JSONLoader[fileObj.fileName]));
 
-const info = {
-  name: 'TEMPLATE_postman_collection',
+const templateCollectionInfo = {
+  name: 'TEMPLATE',
   schema: JSONLoader.config.collectionSchema,
 };
 
-const sortedCollectionBody = new Collection({ info });
-const groupedCollectionBody = new Collection({ info });
+const testProductsCollectionInfo = {
+  name: 'NEW_TEST_PRODUCTS',
+  schema: JSONLoader.config.collectionSchema,
+};
+
+const testServicesCollectionInfo = {
+  name: 'NEW_TEST_SERVICES',
+  schema: JSONLoader.config.collectionSchema,
+};
+
+const sortedCollectionBody = new Collection({ info: templateCollectionInfo });
+const groupedCollectionBody = new Collection({ info: templateCollectionInfo });
+const testProductsCollectionBody = new Collection({ info: testProductsCollectionInfo });
+const testServicesCollectionBody = new Collection({ info: testServicesCollectionInfo });
 
 originalCollectionBodies.forEach((originalCollectionBody) => {
   if (originalCollectionBody?.items.count() > 0) {
@@ -28,4 +40,10 @@ originalCollectionBodies.forEach((originalCollectionBody) => {
 });
 
 DataUtils.groupItems(groupedCollectionBody, sortedCollectionBody);
-DataUtils.saveToJSON(groupedCollectionBody);
+DataUtils.splitCollection(
+  testProductsCollectionBody,
+  testServicesCollectionBody,
+  groupedCollectionBody,
+);
+DataUtils.saveToJSON(testProductsCollectionBody);
+DataUtils.saveToJSON(testServicesCollectionBody);

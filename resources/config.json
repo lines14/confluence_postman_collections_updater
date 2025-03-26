@@ -1,7 +1,36 @@
 {
-    "collectionNamesToParse": ["ESTATE_API_PARTNERS_postman_collection"],
-    "collectionNamesToPublish": ["TEMPLATE_postman_collection"],
+    "collectionNamesToParse": [
+        "ESTATE_API_PARTNERS_postman_collection"
+    ],
+    "collectionNamesToPublish": [
+        "NEW_TEST_PRODUCTS",
+        "NEW_TEST_SERVICES"
+    ],
     "collectionSchema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "servicesFolders": [
+        "archive",
+        "auth",
+        "docs",
+        "notification",
+        "client",
+        "async",
+        "dictionary",
+        "policy",
+        "ocr",
+        "generative_ai",
+        "esbd",
+        "ones",
+        "pay",
+        "kaspi",
+        "nurkassa_kz",
+        "filerepo",
+        "short_link",
+        "signer",
+        "dwh",
+        "crawler",
+        "signerscript",
+        "numerator"
+    ],
     "hiddenLogBodies": true,
     "parseAll": true,
     "logMaxSizeMegabytes": "5120"

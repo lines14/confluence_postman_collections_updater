@@ -6,6 +6,7 @@ import Logger from './logger.js';
 import {
   HTTPMethods, Protocols, HostPlaceholders, Services,
 } from './enums.js';
+import JSONLoader from './JSONLoader.js';
 
 const {
   ItemGroup, Item, PropertyList, QueryParam, FormParam, Response,
@@ -335,6 +336,19 @@ class DataUtils {
             }
           }
         });
+      }
+    });
+  }
+
+  static splitCollection(testProductsCollection, testServicesCollection, groupedCollection) {
+    groupedCollection.items.each((folder) => {
+      if (folder instanceof ItemGroup) {
+        if (JSONLoader.config.servicesFolders
+          .map((el) => el.toUpperCase()).includes(folder.name)) {
+          testServicesCollection.items.add(folder);
+        } else {
+          testProductsCollection.items.add(folder);
+        }
       }
     });
   }
