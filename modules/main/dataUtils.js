@@ -9,7 +9,7 @@ import {
 import JSONLoader from './JSONLoader.js';
 
 const {
-  ItemGroup, Item, PropertyList, QueryParam, FormParam, Response,
+  ItemGroup, Item, PropertyList, QueryParam, FormParam, Response, Variable,
 } = postmanCollection;
 
 class DataUtils {
@@ -340,17 +340,36 @@ class DataUtils {
     });
   }
 
-  static splitCollection(testProductsCollection, testServicesCollection, groupedCollection) {
+  static splitCollection(productsCollection, servicesCollection, groupedCollection) {
     groupedCollection.items.each((folder) => {
       if (folder instanceof ItemGroup) {
         if (JSONLoader.config.servicesFolders
           .map((el) => el.toUpperCase()).includes(folder.name)) {
-          testServicesCollection.items.add(folder);
+          servicesCollection.items.add(folder);
         } else {
-          testProductsCollection.items.add(folder);
+          productsCollection.items.add(folder);
         }
       }
     });
+  }
+
+  static setUniqueEnvVariablesFromAllCollections(
+    productsCollection,
+    servicesCollection,
+    originalCollections,
+  ) {
+    const allVariables = originalCollections
+      .filter((collection) => collection.variables.all().length > 0)
+      .flatMap((collection) => collection.variables.all());
+
+    let uniqueVariables = allVariables.filter((variable, index, arr) => index === arr
+      .findIndex((foundVariable) => foundVariable.key === variable.key
+      && foundVariable.value === variable.value));
+
+    uniqueVariables.forEach((variable) => { variable.disabled = true; });
+    uniqueVariables = new PropertyList(Variable, null, uniqueVariables);
+    productsCollection.variables = uniqueVariables;
+    servicesCollection.variables = uniqueVariables;
   }
 }
 

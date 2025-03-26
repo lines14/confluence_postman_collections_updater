@@ -5,7 +5,7 @@ import JSONLoader from './modules/main/JSONLoader.js';
 
 const { Collection } = postmanCollection;
 
-const originalCollectionBodies = JSONLoader.inputFileObjects
+const originalCollections = JSONLoader.inputFileObjects
   .filter((fileObj) => (!JSONLoader.config.parseAll
     ? JSONLoader.config.collectionNamesToParse.includes(fileObj.fileName)
     : fileObj))
@@ -26,24 +26,31 @@ const testServicesCollectionInfo = {
   schema: JSONLoader.config.collectionSchema,
 };
 
-const sortedCollectionBody = new Collection({ info: templateCollectionInfo });
-const groupedCollectionBody = new Collection({ info: templateCollectionInfo });
-const testProductsCollectionBody = new Collection({ info: testProductsCollectionInfo });
-const testServicesCollectionBody = new Collection({ info: testServicesCollectionInfo });
+const sortedCollection = new Collection({ info: templateCollectionInfo });
+const groupedCollection = new Collection({ info: templateCollectionInfo });
+const testProductsCollection = new Collection({ info: testProductsCollectionInfo });
+const testServicesCollection = new Collection({ info: testServicesCollectionInfo });
 
-originalCollectionBodies.forEach((originalCollectionBody) => {
-  if (originalCollectionBody?.items.count() > 0) {
-    DataUtils.processItems(sortedCollectionBody, originalCollectionBody);
+originalCollections.forEach((originalCollection) => {
+  if (originalCollection?.items.count() > 0) {
+    DataUtils.processItems(sortedCollection, originalCollection);
   } else {
     Logger.log('[err]   no items found in the original collection!');
   }
 });
 
-DataUtils.groupItems(groupedCollectionBody, sortedCollectionBody);
+DataUtils.groupItems(groupedCollection, sortedCollection);
 DataUtils.splitCollection(
-  testProductsCollectionBody,
-  testServicesCollectionBody,
-  groupedCollectionBody,
+  testProductsCollection,
+  testServicesCollection,
+  groupedCollection,
 );
-DataUtils.saveToJSON(testProductsCollectionBody);
-DataUtils.saveToJSON(testServicesCollectionBody);
+
+DataUtils.setUniqueEnvVariablesFromAllCollections(
+  testProductsCollection,
+  testServicesCollection,
+  originalCollections,
+);
+
+DataUtils.saveToJSON(testProductsCollection);
+DataUtils.saveToJSON(testServicesCollection);
