@@ -3,26 +3,13 @@ import fs from 'fs';
 import _ from 'lodash';
 import postmanCollection from 'postman-collection';
 import Logger from './logger.js';
+import {
+  HTTPMethods, Protocols, HostPlaceholders, Services,
+} from './enums.js';
 
 const {
   ItemGroup, Item, PropertyList, QueryParam, FormParam, Response,
 } = postmanCollection;
-
-const HTTPMethods = Object.freeze({
-  GET: 'GET',
-  POST: 'POST',
-});
-
-const Protocols = Object.freeze({
-  HTTP: 'http',
-  HTTPS: 'https',
-});
-
-const HostPlaceholders = Object.freeze({
-  GATEWAY: ['{{GATEWAY_URL}}'],
-  EDU: ['edu-dev', 'amanat', 'systems'],
-  FILEREPO: ['filerepo', 'dev', 'a-i', 'kz'],
-});
 
 class DataUtils {
   static saveToJSON(collection) {
@@ -192,48 +179,48 @@ class DataUtils {
       this.hostAndPathModify(item, host, path);
     } else if (host[0].includes('DICT')
     || path.some((substr) => substr.includes('factors'))) {
-      this.hostAndPathModify(item, host, path, { hostOverride: 'dictionary' });
+      this.hostAndPathModify(item, host, path, { hostOverride: Services.DICTIONARY });
     } else if (port === '8001') {
       delete item.request.url.port;
       delete item.request.url.protocol;
-      this.hostAndPathModify(item, host, path, { hostOverride: 'auth' });
+      this.hostAndPathModify(item, host, path, { hostOverride: Services.AUTH });
     } else if (port === '8013') {
       delete item.request.url.port;
       delete item.request.url.protocol;
-      this.hostAndPathModify(item, host, path, { hostOverride: 'amanat24' });
+      this.hostAndPathModify(item, host, path, { hostOverride: Services.AMANAT24 });
     } else if (port === '8021') {
       delete item.request.url.port;
       delete item.request.url.protocol;
-      this.hostAndPathModify(item, host, path, { hostOverride: 'short_link' });
+      this.hostAndPathModify(item, host, path, { hostOverride: Services.SHORT_LINK });
     } else if (port === '8022') {
       delete item.request.url.port;
       delete item.request.url.protocol;
-      this.hostAndPathModify(item, host, path, { hostOverride: 'signer' });
+      this.hostAndPathModify(item, host, path, { hostOverride: Services.SIGNER });
     } else if (item.name.includes('create')
       && (port === '2023' || port === '2024' || port === '8034')) {
       delete item.request.url.port;
       delete item.request.url.protocol;
-      this.hostAndPathModify(item, host, path, { hostOverride: 'europrotocol' });
+      this.hostAndPathModify(item, host, path, { hostOverride: Services.EUROPROTOCOL });
     } else if (port === '8024') {
       delete item.request.url.port;
       delete item.request.url.protocol;
-      this.hostAndPathModify(item, host, path, { hostOverride: 'edu' });
+      this.hostAndPathModify(item, host, path, { hostOverride: Services.EDU });
     } else if (port === '8030') {
       delete item.request.url.port;
       delete item.request.url.protocol;
-      this.hostAndPathModify(item, host, path, { hostOverride: 'docs' });
+      this.hostAndPathModify(item, host, path, { hostOverride: Services.DOCS });
     } else if (port === '8035') {
       delete item.request.url.port;
       delete item.request.url.protocol;
-      this.hostAndPathModify(item, host, path, { hostOverride: 'claim' });
+      this.hostAndPathModify(item, host, path, { hostOverride: Services.CLAIM });
     } else if (port === '8036') {
       delete item.request.url.port;
       delete item.request.url.protocol;
-      this.hostAndPathModify(item, host, path, { hostOverride: 'signerscript' });
+      this.hostAndPathModify(item, host, path, { hostOverride: Services.SIGNERSCRIPT });
     } else if (path[1] === 'acquiring') {
       path[1] = 'kaspi';
     } else if (host[0].includes('GOASYNC')) {
-      this.hostAndPathModify(item, host, path, { hostOverride: 'async' });
+      this.hostAndPathModify(item, host, path, { hostOverride: Services.ASYNC });
     } else if (host[0] === '{{API_URL}}') {
       this.setPathBeginning(path);
       item.request.url.protocol = Protocols.HTTPS;
