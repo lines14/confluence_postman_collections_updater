@@ -1,24 +1,38 @@
 /* eslint-disable no-await-in-loop */
 /* eslint no-restricted-syntax: ['off', 'ForInStatement'] */
 import dotenv from 'dotenv';
+import gitlabAPI from './modules/API/gitlabAPI.js';
 import JSONLoader from './modules/main/JSONLoader.js';
 import confluenceAPI from './modules/API/confluenceAPI.js';
 
 dotenv.config({ override: true });
 
-const fileObjects = JSONLoader.outputFileObjects
-  .filter((fileObj) => JSONLoader.config.collectionNamesToPublish
-    .includes(fileObj.fileName));
+const publishCollections = async () => {
+  await gitlabAPI.setToken();
 
-const response = await confluenceAPI.getAttachments(process.env.CONFLUENCE_PAGE_ID);
-const attachmentsIDs = fileObjects.map((fileObj) => response.data.results
-  .filter((element) => element.title === fileObj.file).pop().id);
+  let fileObjects = JSONLoader.outputFileObjects
+    .filter((fileObj) => JSONLoader.config.collectionNamesToPublish
+      .includes(fileObj.fileName));
 
-for (const attachmentID of attachmentsIDs) {
-  await confluenceAPI.deleteAttachment(attachmentID);
-  await confluenceAPI.deleteAttachment(attachmentID, { purge: true });
-}
+  const response = await confluenceAPI.getAttachments(process.env.CONFLUENCE_PAGE_ID);
+  const attachmentsIDs = fileObjects.map((fileObj) => response.data.results
+    .filter((element) => element.title === fileObj.file).pop().id);
 
-for (const fileObj of fileObjects) {
-  await confluenceAPI.postJSONAttachment(process.env.CONFLUENCE_PAGE_ID, fileObj);
-}
+  for (const attachmentID of attachmentsIDs) {
+    await confluenceAPI.deleteAttachment(attachmentID);
+    await confluenceAPI.deleteAttachment(attachmentID, { purge: true });
+  }
+
+  for (const fileObj of fileObjects) {
+    await confluenceAPI.postJSONAttachment(process.env.CONFLUENCE_PAGE_ID, fileObj);
+  }
+
+  fileObjects = fileObjects.map((fileObj) => ({
+    file_path: `output_collections/${fileObj.file}`,
+    content: JSON.stringify(JSONLoader[fileObj.fileName], null, 4),
+  }));
+
+  await gitlabAPI.updateFilesContent(fileObjects);
+};
+
+publishCollections();

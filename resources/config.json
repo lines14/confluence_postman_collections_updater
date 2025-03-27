@@ -3,6 +3,8 @@
     "parseAllProdCollections": true,
     "hiddenLogBodies": true,
     "logMaxSizeMegabytes": "5120",
+    "branch": "dev",
+    "commitMessage": "autoupdate output collections [skip ci]",
     "collectionSchema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "testCollectionNamesToParse": [],
     "prodCollectionNamesToParse": [],
