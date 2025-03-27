@@ -279,10 +279,9 @@ class DataUtils {
     originalCollection.items.each((item) => {
       if (item instanceof Item) {
         const { host, path, port } = item.request.url;
-        Logger.log(`[inf]   processing "${item.name}" request path: /${path.join('/')}`);
-        this.disableProperties(item);
-
         if (path && path.length > 1) {
+          Logger.log(`[inf]   processing "${item.name}" request path: /${path.join('/')}`);
+          this.disableProperties(item);
           const updatedHost = this.fixHostAndPath(item, host, port, path);
           const folderName = this.getFolderName(updatedHost, port, path);
           const folder = this.getOrCreateFolder(sortedCollection, folderName);

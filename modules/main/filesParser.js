@@ -6,16 +6,22 @@ const fileExtension = '.json';
 const resourcesDirectoryPath = './resources';
 const outputDirectoryPath = './output_collections';
 const inputTestDirectoryPath = './input_test_collections';
+const inputProdDirectoryPath = './input_prod_collections';
 const envDirectoryPath = path.resolve();
 const fileLocation = path.join(path.resolve(), './modules/main/JSONLoader.js');
 
 const absoleteInputTestDirectoryPath = path.relative(path.resolve(), inputTestDirectoryPath);
+const absoleteInputProdDirectoryPath = path.relative(path.resolve(), inputProdDirectoryPath);
 const absoleteOutputDirectoryPath = path.relative(path.resolve(), outputDirectoryPath);
 const absoleteResourcesDirectoryPath = path.relative(path.resolve(), resourcesDirectoryPath);
 
 const relativeInputTestDirectoryPath = path.relative(
   path.dirname(new URL(import.meta.url).pathname),
   inputTestDirectoryPath,
+);
+const relativeInputProdDirectoryPath = path.relative(
+  path.dirname(new URL(import.meta.url).pathname),
+  inputProdDirectoryPath,
 );
 const relativeOutputDirectoryPath = path.relative(
   path.dirname(new URL(import.meta.url).pathname),
@@ -28,11 +34,13 @@ const relativeResourcesDirectoryPath = path.relative(
 
 const absoleteDirectoryPathArr = [
   absoleteInputTestDirectoryPath,
+  absoleteInputProdDirectoryPath,
   absoleteOutputDirectoryPath,
   absoleteResourcesDirectoryPath,
 ];
 const relativeDirectoryPathArr = [
   relativeInputTestDirectoryPath,
+  relativeInputProdDirectoryPath,
   relativeOutputDirectoryPath,
   relativeResourcesDirectoryPath,
 ];
@@ -63,6 +71,12 @@ const generateClassBody = (dirObjects) => dirObjects.map((dirObj) => `${dirObj.f
 
 const generateInputTestFileObjectsGetter = (dirObjects) => `\tstatic get inputTestFileObjects() {\n\t\treturn [${dirObjects
   .filter((dirObj) => dirObj.dirPath.includes('input_test'))
+  .flatMap((dirObj) => dirObj.fileObjects
+    .map((fileObj) => `{file: '${fileObj.file}', fileName: '${fileObj.fileName}'}`)
+    .join(', '))}];\n\t}\n\n`;
+
+const generateInputProdFileObjectsGetter = (dirObjects) => `\tstatic get inputProdFileObjects() {\n\t\treturn [${dirObjects
+  .filter((dirObj) => dirObj.dirPath.includes('input_prod'))
   .flatMap((dirObj) => dirObj.fileObjects
     .map((fileObj) => `{file: '${fileObj.file}', fileName: '${fileObj.fileName}'}`)
     .join(', '))}];\n\t}\n\n`;
@@ -104,6 +118,10 @@ const trimDotsAndSpacesInFileNames = (filename) => {
   return filename.replace(regex, '_');
 };
 
+const getDirPath = (dirObjects, file) => dirObjects
+  .find((dirObj) => dirObj.fileObjects
+    .some((fileObj) => fileObj.file === file)).dirPath;
+
 const processDirObjects = (dirObjects) => {
   const updatedDirObjects = dirObjects.map((dirObj) => ({
     ...dirObj,
@@ -120,8 +138,8 @@ const processDirObjects = (dirObjects) => {
     if (key.endsWith('.file')) {
       if (flattenedDirObjects[key] !== flattenedUpdatedDirObjects[key]) {
         fs.rename(
-          `${inputTestDirectoryPath}/${flattenedDirObjects[key]}`,
-          `${inputTestDirectoryPath}/${flattenedUpdatedDirObjects[key]}`,
+          `./${getDirPath(dirObjects, flattenedDirObjects[key])}/${flattenedDirObjects[key]}`,
+          `./${getDirPath(dirObjects, flattenedDirObjects[key])}/${flattenedUpdatedDirObjects[key]}`,
           (err) => {
             if (err) {
               throw new Error(`[err]   couldn\`t rename file from ${flattenedDirObjects[key]} to ${flattenedUpdatedDirObjects[key]}!`);
@@ -149,6 +167,7 @@ const generateJSONLoader = (filePath, absoleteDirPathArr, relativeDirPathArr) =>
     .concat(generateImports(relativeDirPathArr, dirObj)), []).join('');
   const classInit = '\nclass JSONLoader {\n';
   const inputTestFileObjectsGetter = generateInputTestFileObjectsGetter(dirObjects);
+  const inputProdFileObjectsGetter = generateInputProdFileObjectsGetter(dirObjects);
   const outputFileObjectsGetter = generateOutputFileObjectsGetter(dirObjects);
   const classBody = generateClassBody(dirObjects);
   const classExport = '}\n\nexport default JSONLoader;';
@@ -157,6 +176,7 @@ const generateJSONLoader = (filePath, absoleteDirPathArr, relativeDirPathArr) =>
     imports
     + classInit
     + inputTestFileObjectsGetter
+    + inputProdFileObjectsGetter
     + outputFileObjectsGetter
     + classBody
     + classExport,

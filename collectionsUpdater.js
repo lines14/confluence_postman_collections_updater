@@ -6,13 +6,24 @@ import JSONLoader from './modules/main/JSONLoader.js';
 const { Collection } = postmanCollection;
 
 const originalTestCollections = JSONLoader.inputTestFileObjects
-  .filter((fileObj) => (!JSONLoader.config.parseAll
+  .filter((fileObj) => (!JSONLoader.config.parseAllTestCollections
     ? JSONLoader.config.testCollectionNamesToParse.includes(fileObj.fileName)
     : fileObj))
   .map((fileObj) => new Collection(JSONLoader[fileObj.fileName]));
 
-const templateCollectionInfo = {
-  name: 'TEMPLATE',
+const originalProdCollections = JSONLoader.inputProdFileObjects
+  .filter((fileObj) => (!JSONLoader.config.parseAllProdCollections
+    ? JSONLoader.config.prodCollectionNamesToParse.includes(fileObj.fileName)
+    : fileObj))
+  .map((fileObj) => new Collection(JSONLoader[fileObj.fileName]));
+
+const testProductsAndServicesCollectionInfo = {
+  name: 'NEW_TEST_PRODUCTS_AND_SERVICES',
+  schema: JSONLoader.config.collectionSchema,
+};
+
+const prodProductsAndServicesCollectionInfo = {
+  name: 'NEW_PRODUCTION_PRODUCTS_AND_SERVICES',
   schema: JSONLoader.config.collectionSchema,
 };
 
@@ -26,24 +37,73 @@ const testServicesCollectionInfo = {
   schema: JSONLoader.config.collectionSchema,
 };
 
-const sortedCollection = new Collection({ info: templateCollectionInfo });
-const groupedCollection = new Collection({ info: templateCollectionInfo });
+const prodProductsCollectionInfo = {
+  name: 'NEW_PRODUCTION_PRODUCTS',
+  schema: JSONLoader.config.collectionSchema,
+};
+
+const prodServicesCollectionInfo = {
+  name: 'NEW_PRODUCTION_SERVICES',
+  schema: JSONLoader.config.collectionSchema,
+};
+
+const sortedTestProductsAndServicesCollection = new Collection({
+  info: testProductsAndServicesCollectionInfo,
+});
+
+const groupedTestProductsAndServicesCollection = new Collection({
+  info: testProductsAndServicesCollectionInfo,
+});
+
+const sortedProdProductsAndServicesCollection = new Collection({
+  info: prodProductsAndServicesCollectionInfo,
+});
+
+const groupedProdProductsAndServicesCollection = new Collection({
+  info: prodProductsAndServicesCollectionInfo,
+});
+
 const testProductsCollection = new Collection({ info: testProductsCollectionInfo });
 const testServicesCollection = new Collection({ info: testServicesCollectionInfo });
+const prodProductsCollection = new Collection({ info: prodProductsCollectionInfo });
+const prodServicesCollection = new Collection({ info: prodServicesCollectionInfo });
 
 originalTestCollections.forEach((originalCollection) => {
   if (originalCollection?.items.count() > 0) {
-    DataUtils.processItems(sortedCollection, originalCollection);
+    DataUtils.processItems(sortedTestProductsAndServicesCollection, originalCollection);
   } else {
     Logger.log('[err]   no items found in the original collection!');
   }
 });
 
-DataUtils.groupItems(groupedCollection, sortedCollection);
+originalProdCollections.forEach((originalCollection) => {
+  if (originalCollection?.items.count() > 0) {
+    DataUtils.processItems(sortedProdProductsAndServicesCollection, originalCollection);
+  } else {
+    Logger.log('[err]   no items found in the original collection!');
+  }
+});
+
+DataUtils.groupItems(
+  groupedTestProductsAndServicesCollection,
+  sortedTestProductsAndServicesCollection,
+);
+
+DataUtils.groupItems(
+  groupedProdProductsAndServicesCollection,
+  sortedProdProductsAndServicesCollection,
+);
+
 DataUtils.splitCollection(
   testProductsCollection,
   testServicesCollection,
-  groupedCollection,
+  groupedTestProductsAndServicesCollection,
+);
+
+DataUtils.splitCollection(
+  prodProductsCollection,
+  prodServicesCollection,
+  groupedProdProductsAndServicesCollection,
 );
 
 DataUtils.setUniqueEnvVariablesFromAllCollections(
@@ -52,6 +112,15 @@ DataUtils.setUniqueEnvVariablesFromAllCollections(
   originalTestCollections,
 );
 
+DataUtils.setUniqueEnvVariablesFromAllCollections(
+  prodProductsCollection,
+  prodServicesCollection,
+  originalProdCollections,
+);
+
 DataUtils.moveAuthMethodToRoot(testProductsCollection, testServicesCollection);
+DataUtils.moveAuthMethodToRoot(prodProductsCollection, prodServicesCollection);
 DataUtils.saveToJSON(testProductsCollection);
 DataUtils.saveToJSON(testServicesCollection);
+DataUtils.saveToJSON(prodProductsCollection);
+DataUtils.saveToJSON(prodServicesCollection);
