@@ -11,6 +11,7 @@
         "NEW_TEST_SERVICES"
     ],
     "servicesFolders": [
+        "elastic",
         "archive",
         "auth",
         "docs",

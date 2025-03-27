@@ -174,14 +174,15 @@ class DataUtils {
   }
 
   static fixHostAndPath(item, host, port, path) {
-    if (host[0].includes('SIGNER')
-    || host[0].includes('NOTIFICATION')
-    || host[0].includes('MEDPOOL')) {
+    if (host[0].includes(Services.SIGNER.toUpperCase())
+    || host[0].includes(Services.NOTIFICATION.toUpperCase())
+    || host[0].includes(Services.MEDPOOL.toUpperCase())
+    || host[0].includes(Services.KASKO.toUpperCase())) {
       this.hostAndPathModify(item, host, path);
     } else if (host[0].includes('DICT')
     || path.some((substr) => substr.includes('factors'))
-    || (path.some((substr) => substr.includes('products'))
-    && path.every((substr) => !substr.includes('kasko')))) {
+    || (path.some((substr) => substr === 'products')
+    && path.every((substr) => !substr.includes(Services.KASKO)))) {
       this.hostAndPathModify(item, host, path, { hostOverride: Services.DICTIONARY });
     } else if (port === '8001') {
       delete item.request.url.port;
@@ -221,21 +222,21 @@ class DataUtils {
       delete item.request.url.protocol;
       this.hostAndPathModify(item, host, path, { hostOverride: Services.SIGNERSCRIPT });
     } else if (path[1] === 'acquiring') {
-      path[1] = 'kaspi';
-    } else if (host[0].includes('GOASYNC')) {
+      path[1] = Services.KASPI;
+    } else if (host[0].includes(`GO${Services.ASYNC.toUpperCase()}`)) {
       this.hostAndPathModify(item, host, path, { hostOverride: Services.ASYNC });
     } else if (host[0] === '{{API_URL}}') {
       this.setPathBeginning(path);
       item.request.url.protocol = Protocols.HTTPS;
       item.request.url.host = HostPlaceholders.EDU;
-    } else if (host[0].includes('FILEREPO')) {
+    } else if (host[0].includes(Services.FILEREPO.toUpperCase())) {
       this.setPathBeginning(path);
       item.request.url.protocol = Protocols.HTTP;
       item.request.url.host = HostPlaceholders.FILEREPO;
-    } else if (host.some((substr) => substr.toUpperCase().includes('GATEWAY'))
+    } else if (host.some((substr) => substr.toUpperCase().includes(Services.GATEWAY.toUpperCase()))
     || host[0] === '{{URL}}'
     || host[0] === '{{HOST}}'
-    || host[0].includes('AUTH')
+    || host[0].includes(Services.AUTH.toUpperCase())
     || port === '8000') {
       delete item.request.url.port;
       delete item.request.url.protocol;
@@ -257,7 +258,7 @@ class DataUtils {
     && path[1] !== 'user'
     && path[1] !== 'documents'
     && path[1] !== 'temp-users') {
-      if (!host[0].toUpperCase().includes('GATEWAY')) {
+      if (!host[0].toUpperCase().includes(Services.GATEWAY.toUpperCase())) {
         if (this.startsWithNumberOrLocalhost(host[0])) {
           folderName = `PORT_${port}`;
         } else if (host.length >= 3
@@ -272,13 +273,19 @@ class DataUtils {
         folderName = path[1].toUpperCase();
       }
     } else if (host.length > 1
-      && (host[1] === 'amanat24-dev' || host[1] === 'medpul')) {
+      && (host[1] === 'amanat24'
+      || host[1] === 'amanat24-dev'
+      || host[1] === 'medpul')) {
       folderName = host[1].replace('-', '_').toUpperCase();
     } else if (host.length > 1
       && host[1] === 'amanat') {
       folderName = host[0].toUpperCase();
+    } else if (host[0].toUpperCase().includes(Services.ELASTIC.toUpperCase())) {
+      folderName = this.trimPlaceholder(host[0]).toUpperCase();
+    } else if (host[2] === 'mockbin') {
+      folderName = Services.CARGO.toUpperCase();
     } else {
-      folderName = 'AUTH';
+      folderName = Services.AUTH.toUpperCase();
     }
 
     return folderName;
@@ -381,7 +388,7 @@ class DataUtils {
   }
 
   static moveAuthMethodToRoot(productsCollection, servicesCollection) {
-    const itemName = 'Auth';
+    const itemName = _.capitalize(Services.AUTH);
     const foundFolder = servicesCollection.items
       .find((folder) => folder.name === itemName.toUpperCase());
     if (foundFolder) {
