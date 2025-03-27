@@ -15,7 +15,7 @@ const {
 class DataUtils {
   static saveToJSON(collection) {
     const replacer = (key, value) => (typeof value === 'undefined' ? null : value);
-    fs.writeFileSync(`./output/${collection.name}.json`, JSON.stringify(collection, replacer, 4));
+    fs.writeFileSync(`./output_collections/${collection.name}.json`, JSON.stringify(collection, replacer, 4));
   }
 
   static hasUrlencodedPropertiesArr(item) {

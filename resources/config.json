@@ -1,12 +1,13 @@
 {
-    "collectionNamesToParse": [
-        "ESTATE_API_PARTNERS_postman_collection"
-    ],
+    "parseAll": true,
+    "hiddenLogBodies": true,
+    "logMaxSizeMegabytes": "5120",
+    "collectionSchema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "testCollectionNamesToParse": [],
     "collectionNamesToPublish": [
         "NEW_TEST_PRODUCTS",
         "NEW_TEST_SERVICES"
     ],
-    "collectionSchema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "servicesFolders": [
         "archive",
         "auth",
@@ -30,8 +31,5 @@
         "crawler",
         "signerscript",
         "numerator"
-    ],
-    "hiddenLogBodies": true,
-    "parseAll": true,
-    "logMaxSizeMegabytes": "5120"
+    ]
 }

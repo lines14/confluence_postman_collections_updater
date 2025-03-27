@@ -5,9 +5,9 @@ import JSONLoader from './modules/main/JSONLoader.js';
 
 const { Collection } = postmanCollection;
 
-const originalCollections = JSONLoader.inputFileObjects
+const originalTestCollections = JSONLoader.inputTestFileObjects
   .filter((fileObj) => (!JSONLoader.config.parseAll
-    ? JSONLoader.config.collectionNamesToParse.includes(fileObj.fileName)
+    ? JSONLoader.config.testCollectionNamesToParse.includes(fileObj.fileName)
     : fileObj))
   .map((fileObj) => new Collection(JSONLoader[fileObj.fileName]));
 
@@ -31,7 +31,7 @@ const groupedCollection = new Collection({ info: templateCollectionInfo });
 const testProductsCollection = new Collection({ info: testProductsCollectionInfo });
 const testServicesCollection = new Collection({ info: testServicesCollectionInfo });
 
-originalCollections.forEach((originalCollection) => {
+originalTestCollections.forEach((originalCollection) => {
   if (originalCollection?.items.count() > 0) {
     DataUtils.processItems(sortedCollection, originalCollection);
   } else {
@@ -49,7 +49,7 @@ DataUtils.splitCollection(
 DataUtils.setUniqueEnvVariablesFromAllCollections(
   testProductsCollection,
   testServicesCollection,
-  originalCollections,
+  originalTestCollections,
 );
 
 DataUtils.moveAuthMethodToRoot(testProductsCollection, testServicesCollection);
