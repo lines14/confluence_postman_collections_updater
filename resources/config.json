@@ -7,6 +7,8 @@
     "testCollectionNamesToParse": [],
     "prodCollectionNamesToParse": [],
     "collectionNamesToPublish": [
+        "NEW_PRODUCTION_PRODUCTS",
+        "NEW_PRODUCTION_SERVICES",
         "NEW_TEST_PRODUCTS",
         "NEW_TEST_SERVICES"
     ],
