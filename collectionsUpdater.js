@@ -72,7 +72,7 @@ originalTestCollections.forEach((originalCollection) => {
   if (originalCollection?.items.count() > 0) {
     DataUtils.processItems(sortedTestProductsAndServicesCollection, originalCollection);
   } else {
-    Logger.log('[err]   no items found in the original collection!');
+    Logger.log('[err]   no items found in the original test collection!');
   }
 });
 
@@ -80,7 +80,7 @@ originalProdCollections.forEach((originalCollection) => {
   if (originalCollection?.items.count() > 0) {
     DataUtils.processItems(sortedProdProductsAndServicesCollection, originalCollection);
   } else {
-    Logger.log('[err]   no items found in the original collection!');
+    Logger.log('[err]   no items found in the original production collection!');
   }
 });
 

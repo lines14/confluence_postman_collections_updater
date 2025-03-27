@@ -179,7 +179,9 @@ class DataUtils {
     || host[0].includes('MEDPOOL')) {
       this.hostAndPathModify(item, host, path);
     } else if (host[0].includes('DICT')
-    || path.some((substr) => substr.includes('factors'))) {
+    || path.some((substr) => substr.includes('factors'))
+    || (path.some((substr) => substr.includes('products'))
+    && path.every((substr) => !substr.includes('kasko')))) {
       this.hostAndPathModify(item, host, path, { hostOverride: Services.DICTIONARY });
     } else if (port === '8001') {
       delete item.request.url.port;
@@ -241,6 +243,10 @@ class DataUtils {
       item.request.url.host = HostPlaceholders.GATEWAY;
     }
 
+    while (path.includes('')) {
+      path.splice(path.indexOf(''), 1);
+    }
+
     return item.request.url.host;
   }
 
@@ -254,7 +260,10 @@ class DataUtils {
       if (!host[0].toUpperCase().includes('GATEWAY')) {
         if (this.startsWithNumberOrLocalhost(host[0])) {
           folderName = `PORT_${port}`;
-        } else if (host.length >= 3 && host[1] !== 'amanat' && host[2] !== 'a-i') {
+        } else if (host.length >= 3
+        && host[1] !== 'amanat'
+        && host[1] !== 'a-i'
+        && host[2] !== 'a-i') {
           folderName = `${host[1].toUpperCase()}_${host[2].toUpperCase()}`;
         } else {
           folderName = host[0].toUpperCase();
@@ -279,7 +288,7 @@ class DataUtils {
     originalCollection.items.each((item) => {
       if (item instanceof Item) {
         const { host, path, port } = item.request.url;
-        if (path && path.length > 1) {
+        if (path) {
           Logger.log(`[inf]   processing "${item.name}" request path: /${path.join('/')}`);
           this.disableProperties(item);
           const updatedHost = this.fixHostAndPath(item, host, port, path);
