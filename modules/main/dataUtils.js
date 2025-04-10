@@ -142,12 +142,21 @@ class DataUtils {
   }
 
   static trimPlaceholder(str) {
-    return str.replace(/{{|}}/g, '').trim().split('_', 1)[0].toLowerCase();
+    const match = str.match(/{{(.*?)}}/);
+    if (match) {
+      return match[1].trim().split('_', 1)[0].toLowerCase();
+    }
+
+    return '';
   }
 
   static hostAndPathModify(item, host, path, options = {}) {
     const trimmedHost = options.hostOverride ?? this.trimPlaceholder(host[0]);
-    item.request.url.host = HostPlaceholders.GATEWAY;
+    if (trimmedHost === Services.AMANAT24) {
+      item.request.url.host = HostPlaceholders.AMANAT24;
+    } else {
+      item.request.url.host = HostPlaceholders.GATEWAY;
+    }
 
     if (path[0] !== 'api' && path[0] !== trimmedHost) {
       path.unshift(trimmedHost);
@@ -159,7 +168,7 @@ class DataUtils {
 
       path.unshift('api');
     } else if (path[0] === 'api' && path[1] !== trimmedHost) {
-      path.splice(1, 0, trimmedHost);
+      if (trimmedHost !== Services.AMANAT24) path.splice(1, 0, trimmedHost);
     }
   }
 
@@ -177,6 +186,10 @@ class DataUtils {
     if (host[0].includes(Services.SIGNER.toUpperCase())
     || host[0].includes(Services.NOTIFICATION.toUpperCase())
     || host[0].includes(Services.MEDPOOL.toUpperCase())
+    || host[0].includes(Services.CLAIM.toUpperCase())
+    || host[0].includes(Services.AMANAT24.toUpperCase())
+    || host[0].includes(Services.AMANAT24)
+    || host[0].includes(Services.EDU.toUpperCase())
     || host[0].includes(Services.KASKO.toUpperCase())) {
       this.hostAndPathModify(item, host, path);
     } else if (host[0].includes('DICT')
@@ -188,6 +201,10 @@ class DataUtils {
       delete item.request.url.port;
       delete item.request.url.protocol;
       this.hostAndPathModify(item, host, path, { hostOverride: Services.AUTH });
+    } else if (port === '8003') {
+      delete item.request.url.port;
+      delete item.request.url.protocol;
+      this.hostAndPathModify(item, host, path, { hostOverride: Services.NOTIFICATION });
     } else if (port === '8013') {
       delete item.request.url.port;
       delete item.request.url.protocol;
@@ -221,6 +238,10 @@ class DataUtils {
       delete item.request.url.port;
       delete item.request.url.protocol;
       this.hostAndPathModify(item, host, path, { hostOverride: Services.SIGNERSCRIPT });
+    } else if (host[0] === '{{WEB_ENV}}') {
+      delete item.request.url.port;
+      delete item.request.url.protocol;
+      this.hostAndPathModify(item, host, path, { hostOverride: Services.MEDPOOL });
     } else if (path[1] === 'acquiring') {
       path[1] = Services.KASPI;
     } else if (host[0].includes(`GO${Services.ASYNC.toUpperCase()}`)) {
@@ -266,6 +287,8 @@ class DataUtils {
         && host[1] !== 'a-i'
         && host[2] !== 'a-i') {
           folderName = `${host[1].toUpperCase()}_${host[2].toUpperCase()}`;
+        } else if (host[0].toUpperCase().includes(Services.AMANAT24.toUpperCase())) {
+          folderName = this.trimPlaceholder(host[0]).toUpperCase();
         } else {
           folderName = host[0].toUpperCase();
         }
@@ -282,6 +305,8 @@ class DataUtils {
       folderName = host[0].toUpperCase();
     } else if (host[0].toUpperCase().includes(Services.ELASTIC.toUpperCase())) {
       folderName = this.trimPlaceholder(host[0]).toUpperCase();
+    } else if (host[0].toUpperCase().includes(Services.AMANAT24.toUpperCase())) {
+      folderName = this.trimPlaceholder(host[0]).toUpperCase();
     } else if (host[2] === 'mockbin') {
       folderName = Services.CARGO.toUpperCase();
     } else {
@@ -295,7 +320,7 @@ class DataUtils {
     originalCollection.items.each((item) => {
       if (item instanceof Item) {
         const { host, path, port } = item.request.url;
-        if (path) {
+        if (path && path.every((substr) => !substr.includes('hs'))) {
           Logger.log(`[inf]   processing "${item.name}" request path: /${path.join('/')}`);
           this.disableProperties(item);
           const updatedHost = this.fixHostAndPath(item, host, port, path);
