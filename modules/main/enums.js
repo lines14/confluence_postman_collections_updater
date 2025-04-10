@@ -13,7 +13,7 @@ export const HostPlaceholders = Object.freeze({
     '{{GATEWAY_URL}}',
   ],
   AMANAT24: [
-    '{{AMANAT24_URL}}',
+    '{{amanat24_url}}',
   ],
   EDU: [
     'edu-dev',
