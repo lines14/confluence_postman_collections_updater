@@ -381,7 +381,13 @@ class DataUtils {
       .findIndex((foundVariable) => foundVariable.key === variable.key
       && foundVariable.value === variable.value));
 
-    uniqueVariables.forEach((variable) => { variable.disabled = true; });
+    const count = {};
+    const keys = uniqueVariables.map((variable) => variable.key);
+    keys.forEach((variable) => { count[variable] = (count[variable] || 0) + 1; });
+    uniqueVariables.forEach((variable) => {
+      if (count[variable.key] > 1) variable.disabled = true;
+    });
+
     uniqueVariables = new PropertyList(Variable, null, uniqueVariables);
     productsCollection.variables = uniqueVariables;
     servicesCollection.variables = uniqueVariables;
