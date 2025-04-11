@@ -355,21 +355,55 @@ class DataUtils {
           && item.request
           && item.request.url
           && item.request.url.path) {
-            const { path } = item.request.url;
-            if (path.length > 3
-            && this.notEmptyOrHasNumber(path[3])
-            && this.notEmptyOrHasNumber(path[2])) {
-              const subFolderName = path[2].toUpperCase();
-              const subFolder = this.getOrCreateFolder(parentFolder, subFolderName);
-              const subSubFolderName = path[3].toUpperCase();
-              const subSubFolder = this.getOrCreateFolder(subFolder, subSubFolderName);
-              Logger.log(`[inf]   moving "${item.name}" into /${folder.name}/${subFolderName}/${subSubFolderName}`);
-              subSubFolder.items.add(item);
-            } else if (path.length > 2 && this.notEmptyOrHasNumber(path[2])) {
-              const subFolderName = path[2].toUpperCase();
-              const subFolder = this.getOrCreateFolder(parentFolder, subFolderName);
-              Logger.log(`[inf]   moving "${item.name}" into /${folder.name}/${subFolderName}`);
-              subFolder.items.add(item);
+            const { host, path } = item.request.url;
+            if (path.length > 3) {
+              if (host.some((substr) => substr.toUpperCase()
+                .includes(Services.AMANAT24.toUpperCase()))
+              && this.notEmptyOrHasNumber(path[1])) {
+                const subFolderName = path[1].toUpperCase();
+                const subFolder = this.getOrCreateFolder(parentFolder, subFolderName);
+                if (this.notEmptyOrHasNumber(path[3])
+                && this.notEmptyOrHasNumber(path[2])) {
+                  const subSubFolderName = path[2].toUpperCase();
+                  const subSubFolder = this.getOrCreateFolder(subFolder, subSubFolderName);
+                  const subSubSubFolderName = path[3].toUpperCase();
+                  const subSubSubFolder = this.getOrCreateFolder(subSubFolder, subSubSubFolderName);
+                  Logger.log(`[inf]   moving "${item.name}" into /${folder.name}/${subFolderName}/${subSubFolderName}/${subSubSubFolderName}`);
+                  subSubSubFolder.items.add(item);
+                } else {
+                  Logger.log(`[inf]   moving "${item.name}" into /${folder.name}/${subFolderName}`);
+                  subFolder.items.add(item);
+                }
+              } else if (this.notEmptyOrHasNumber(path[3])
+              && this.notEmptyOrHasNumber(path[2])) {
+                const subFolderName = path[2].toUpperCase();
+                const subFolder = this.getOrCreateFolder(parentFolder, subFolderName);
+                const subSubFolderName = path[3].toUpperCase();
+                const subSubFolder = this.getOrCreateFolder(subFolder, subSubFolderName);
+                Logger.log(`[inf]   moving "${item.name}" into /${folder.name}/${subFolderName}/${subSubFolderName}`);
+                subSubFolder.items.add(item);
+              }
+            } else if (path.length > 2) {
+              if (host.some((substr) => substr.toUpperCase()
+                .includes(Services.AMANAT24.toUpperCase()))
+              && this.notEmptyOrHasNumber(path[1])) {
+                const subFolderName = path[1].toUpperCase();
+                const subFolder = this.getOrCreateFolder(parentFolder, subFolderName);
+                if (this.notEmptyOrHasNumber(path[2])) {
+                  const subSubFolderName = path[2].toUpperCase();
+                  const subSubFolder = this.getOrCreateFolder(subFolder, subSubFolderName);
+                  Logger.log(`[inf]   moving "${item.name}" into /${folder.name}/${subFolderName}/${subSubFolderName}`);
+                  subSubFolder.items.add(item);
+                } else {
+                  Logger.log(`[inf]   moving "${item.name}" into /${folder.name}/${subFolderName}`);
+                  subFolder.items.add(item);
+                }
+              } else if (this.notEmptyOrHasNumber(path[2])) {
+                const subFolderName = path[2].toUpperCase();
+                const subFolder = this.getOrCreateFolder(parentFolder, subFolderName);
+                Logger.log(`[inf]   moving "${item.name}" into /${folder.name}/${subFolderName}`);
+                subFolder.items.add(item);
+              }
             } else {
               Logger.log(`[inf]   keeping "${item.name}" inside /${folder.name}`);
               parentFolder.items.add(item);
