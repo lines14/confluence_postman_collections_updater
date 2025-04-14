@@ -9,7 +9,7 @@ import {
 import JSONLoader from './JSONLoader.js';
 
 const {
-  ItemGroup, Item, PropertyList, QueryParam, FormParam, Response, Variable,
+  ItemGroup, Item, PropertyList, QueryParam, FormParam, Response, Variable, Event,
 } = postmanCollection;
 
 class DataUtils {
@@ -55,6 +55,12 @@ class DataUtils {
     responseTemplateList.forEach((responseTemplate) => { delete responseTemplate.id; });
     const uniqueResponses = _.uniqWith(responseTemplateList, _.isEqual);
     return new PropertyList(Response, null, uniqueResponses);
+  }
+
+  static getListOfUniqueEvents(...eventsList) {
+    eventsList.forEach((event) => { delete event.script.id; event.script.packages = {}; });
+    const uniqueEvents = _.uniqWith(eventsList, _.isEqual);
+    return new PropertyList(Event, null, uniqueEvents);
   }
 
   static setUniquePropertiesFromSameItem(folder, item) {
@@ -114,6 +120,19 @@ class DataUtils {
         existingItem.responses = this.getListOfUniqueResponseTemplates(
           ...existingItem.responses.all(),
           ...item.responses.all(),
+        );
+      }
+    });
+  }
+
+  static setUniqueEventsFromSameItem(folder, item) {
+    folder.items.all().forEach((existingItem) => {
+      if (_.isEqual(existingItem.request.url.path, item.request.url.path)
+      && existingItem.name.toUpperCase() === item.name.toUpperCase()
+      && existingItem.request.method === item.request.method) {
+        existingItem.events = this.getListOfUniqueEvents(
+          ...existingItem.events.all(),
+          ...item.events.all(),
         );
       }
     });
@@ -333,6 +352,7 @@ class DataUtils {
             && existingItem.request.method === item.request.method)) {
             this.setUniqueResponseTemplatesFromSameItem(folder, item);
             this.setUniquePropertiesFromSameItem(folder, item);
+            this.setUniqueEventsFromSameItem(folder, item);
           } else {
             folder.items.add(item);
           }
@@ -431,6 +451,7 @@ class DataUtils {
     productsCollection,
     servicesCollection,
     originalCollections,
+    options = { isTestCollections: false },
   ) {
     const allVariables = originalCollections
       .filter((collection) => collection.variables.all().length > 0)
@@ -447,6 +468,10 @@ class DataUtils {
       if (count[variable.key] > 1) variable.disabled = true;
     });
 
+    uniqueVariables = uniqueVariables.filter((variable) => variable.key !== 'TOKEN');
+    uniqueVariables = options.isTestCollections
+      ? uniqueVariables.filter((variable) => variable.key !== HostPlaceholders.GATEWAY[0].match(/{{(.*?)}}/)[1].trim())
+      : uniqueVariables;
     uniqueVariables = new PropertyList(Variable, null, uniqueVariables);
     productsCollection.variables = uniqueVariables;
     servicesCollection.variables = uniqueVariables;

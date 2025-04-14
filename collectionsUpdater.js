@@ -111,6 +111,7 @@ const updateCollections = () => {
     testProductsCollection,
     testServicesCollection,
     originalTestCollections,
+    { isTestCollections: true },
   );
 
   DataUtils.setUniqueEnvVariablesFromAllCollections(
