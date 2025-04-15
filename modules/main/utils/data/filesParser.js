@@ -8,7 +8,7 @@ const outputDirectoryPath = './output_collections';
 const inputTestDirectoryPath = './input_test_collections';
 const inputProdDirectoryPath = './input_prod_collections';
 const envDirectoryPath = path.resolve();
-const fileLocation = path.join(path.resolve(), './modules/main/JSONLoader.js');
+const fileLocation = path.join(path.resolve(), './modules/main/utils/data/JSONLoader.js');
 
 const absoleteInputTestDirectoryPath = path.relative(path.resolve(), inputTestDirectoryPath);
 const absoleteInputProdDirectoryPath = path.relative(path.resolve(), inputProdDirectoryPath);

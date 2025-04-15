@@ -2,8 +2,8 @@
 /* eslint no-restricted-syntax: ['off', 'ForInStatement'] */
 import dotenv from 'dotenv';
 import gitlabAPI from './modules/API/gitlabAPI.js';
-import JSONLoader from './modules/main/JSONLoader.js';
 import confluenceAPI from './modules/API/confluenceAPI.js';
+import JSONLoader from './modules/main/utils/data/JSONLoader.js';
 
 dotenv.config({ override: true });
 

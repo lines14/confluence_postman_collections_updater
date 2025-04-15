@@ -1,7 +1,7 @@
 stages:
   - update
 update:
-  image: node:lts
+  image: node:20.13.1
   stage: update
   only:
     - dev
@@ -17,4 +17,5 @@ update:
   artifacts:
     expire_in: 1 month
     paths:
-      - log.txt
+      - artifacts
+      - resources/config.json

@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
-import BaseAPI from '../main/baseAPI.js';
-import JSONLoader from '../main/JSONLoader.js';
+import BaseAPI from '../main/utils/API/baseAPI.js';
+import JSONLoader from '../main/utils/data/JSONLoader.js';
 
 dotenv.config({ override: true });
 

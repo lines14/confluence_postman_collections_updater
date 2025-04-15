@@ -2,7 +2,7 @@
 import fs from 'fs';
 import _ from 'lodash';
 import postmanCollection from 'postman-collection';
-import Logger from './logger.js';
+import Logger from '../log/logger.js';
 import {
   HTTPMethods, Protocols, HostPlaceholders, Services,
 } from './enums.js';

@@ -2,9 +2,9 @@ import path from 'path';
 import moment from 'moment';
 import { filesize } from 'filesize';
 import { stat, promises as fsPromises } from 'fs';
-import JSONLoader from './JSONLoader.js';
+import JSONLoader from '../data/JSONLoader.js';
 
-const filePath = path.join(path.resolve(), 'log.txt');
+const filePath = path.join(path.resolve(), 'artifacts', 'log.txt');
 
 class Logger {
   static async log(step) {

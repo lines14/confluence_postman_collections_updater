@@ -1,7 +1,7 @@
 import postmanCollection from 'postman-collection';
-import Logger from './modules/main/logger.js';
-import DataUtils from './modules/main/dataUtils.js';
-import JSONLoader from './modules/main/JSONLoader.js';
+import Logger from './modules/main/utils/log/logger.js';
+import DataUtils from './modules/main/utils/data/dataUtils.js';
+import JSONLoader from './modules/main/utils/data/JSONLoader.js';
 
 const updateCollections = () => {
   const { Collection } = postmanCollection;
