@@ -491,6 +491,16 @@ class DataUtils {
       }
     }
   }
+
+  static orderItemsAlphabetically(groupedCollection) {
+    const { items } = groupedCollection;
+    items.members.sort((a, b) => a.name.localeCompare(b.name));
+    items.members.forEach((item) => {
+      if (item.items && item.items.count()) {
+        this.orderItemsAlphabetically(item);
+      }
+    });
+  }
 }
 
 export default DataUtils;

@@ -95,6 +95,9 @@ const updateCollections = () => {
     sortedProdProductsAndServicesCollection,
   );
 
+  DataUtils.orderItemsAlphabetically(groupedTestProductsAndServicesCollection);
+  DataUtils.orderItemsAlphabetically(groupedProdProductsAndServicesCollection);
+
   DataUtils.splitCollection(
     testProductsCollection,
     testServicesCollection,
