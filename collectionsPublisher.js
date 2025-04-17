@@ -14,17 +14,19 @@ const publishCollections = async () => {
     .filter((fileObj) => JSONLoader.config.collectionNamesToPublish
       .includes(fileObj.fileName));
 
-  const response = await confluenceAPI.getAttachments(process.env.CONFLUENCE_PAGE_ID);
-  const attachmentsIDs = fileObjects.map((fileObj) => response.data.results
-    .filter((element) => element.title === fileObj.file).pop().id);
+  for (const pageID of JSON.parse(process.env.CONFLUENCE_PAGES_IDS)) {
+    const response = await confluenceAPI.getAttachments(pageID);
+    const attachmentsIDs = fileObjects.map((fileObj) => response.data.results
+      .filter((element) => element.title === fileObj.file).pop().id);
 
-  for (const attachmentID of attachmentsIDs) {
-    await confluenceAPI.deleteAttachment(attachmentID);
-    await confluenceAPI.deleteAttachment(attachmentID, { purge: true });
-  }
+    for (const attachmentID of attachmentsIDs) {
+      await confluenceAPI.deleteAttachment(attachmentID);
+      await confluenceAPI.deleteAttachment(attachmentID, { purge: true });
+    }
 
-  for (const fileObj of fileObjects) {
-    await confluenceAPI.postJSONAttachment(process.env.CONFLUENCE_PAGE_ID, fileObj);
+    for (const fileObj of fileObjects) {
+      await confluenceAPI.postJSONAttachment(pageID, fileObj);
+    }
   }
 
   fileObjects = fileObjects.map((fileObj) => ({
