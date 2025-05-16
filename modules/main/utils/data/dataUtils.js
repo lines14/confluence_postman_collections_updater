@@ -51,10 +51,65 @@ class DataUtils {
     return new PropertyList(itemType, null, uniqueProperties);
   }
 
-  static getListOfUniqueResponseTemplates(...responseTemplateList) {
-    responseTemplateList.forEach((responseTemplate) => { delete responseTemplate.id; });
-    const uniqueResponses = _.uniqWith(responseTemplateList, _.isEqual);
-    return new PropertyList(Response, null, uniqueResponses);
+  static getListOfUniqueTemplates(options, templateList) {
+    const { namesCompare } = options;
+    templateList.forEach((template) => { delete template.id; });
+    if (!namesCompare) {
+      templateList.forEach((template) => { delete template.name; });
+    }
+
+    const uniqueTemplates = _.uniqWith(templateList, _.isEqual);
+    return new PropertyList(Response, null, uniqueTemplates);
+  }
+
+  static getNumberFromLastNumericCharacter(str) {
+    const match = str.match(/(\d+)$/);
+    if (match) {
+      return parseInt(match[0], 10);
+    }
+    throw new Error(Logger.log('[err]   template\'s name not has numeric character at the end'));
+  }
+
+  static sortStringsWithNumbersASC(nameList) {
+    return nameList.sort((a, b) => {
+      const numA = this.getNumberFromLastNumericCharacter(a);
+      const numB = this.getNumberFromLastNumericCharacter(b);
+      return numA - numB;
+    });
+  }
+
+  static sortNamesAlphabetically(elementsArr) {
+    elementsArr.members.sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  static sortKeysAlphabetically(elementsArr) {
+    elementsArr.members.sort((a, b) => {
+      const keyA = a.key || '';
+      const keyB = b.key || '';
+      return keyA.localeCompare(keyB);
+    });
+  }
+
+  static getNewTemplateName(itemName, templateNames) {
+    const regex = new RegExp(`${itemName}${JSONLoader.config.templateNamePattern}-\\d+$`);
+    const filteredTemplateNames = templateNames.filter((name) => regex.test(name));
+    if (filteredTemplateNames && filteredTemplateNames.length > 0) {
+      const sortedTemplateNames = this.sortStringsWithNumbersASC(filteredTemplateNames);
+      const lastNum = this.getNumberFromLastNumericCharacter(sortedTemplateNames.at(-1));
+      return `${itemName}${JSONLoader.config.templateNamePattern}-${lastNum + 1}`;
+    }
+    return `${itemName}${JSONLoader.config.templateNamePattern}-1`;
+  }
+
+  static addUniqueBodyToTemplateList(existingItem, item) {
+    Logger.log(`[inf]   adding new template for ${existingItem.name} request body`);
+    const templateList = existingItem.responses.all();
+    const templateNames = templateList.map((template) => template.name);
+    const newTemplate = new Response();
+    newTemplate.name = this.getNewTemplateName(existingItem.name, templateNames);
+    newTemplate.originalRequest = item.request;
+    templateList.push(newTemplate);
+    return new PropertyList(Response, null, templateList);
   }
 
   static getListOfUniqueEvents(...eventsList) {
@@ -63,41 +118,65 @@ class DataUtils {
     return new PropertyList(Event, null, uniqueEvents);
   }
 
+  static isExistingAndNewItemEqual(existingItem, newItem) {
+    return _.isEqual(existingItem.request.url.path, newItem.request.url.path)
+    && existingItem.name.toUpperCase() === newItem.name.toUpperCase()
+    && existingItem.request.method === newItem.request.method;
+  }
+
+  static hasEmptyBody(item) {
+    if (item.request.method !== HTTPMethods.GET) {
+      return !item.request.body && !item.request.body?.raw;
+    }
+    return true;
+  }
+
+  static hasEqualBodies(existingItem, newItem) {
+    if (newItem.request.method !== HTTPMethods.GET
+    && newItem.request.body
+    && !this.hasEmptyBody(newItem)) {
+      return _.isEqual(existingItem.request.body, newItem.request.body);
+    }
+    return false;
+  }
+
   static setUniquePropertiesFromSameItem(folder, item) {
     folder.items.all().forEach((existingItem) => {
-      if (_.isEqual(existingItem.request.url.path, item.request.url.path)
-      && existingItem.name.toUpperCase() === item.name.toUpperCase()
-      && existingItem.request.method === item.request.method) {
-        if (item.request.method === HTTPMethods.POST
+      if (this.isExistingAndNewItemEqual(existingItem, item)) {
+        if (item.request.method !== HTTPMethods.GET
         && this.hasUrlencodedPropertiesArr(item)
         && item.request.body.urlencoded.count()) {
-          if (existingItem.request.method === HTTPMethods.POST) {
+          if (existingItem.request.method !== HTTPMethods.GET) {
             if (this.hasUrlencodedPropertiesArr(existingItem)) {
               existingItem.request.body.urlencoded = this.getListOfUniqueProperties(
                 ...existingItem.request.body.urlencoded.all(),
                 ...item.request.body.urlencoded.all(),
               );
+              this.sortKeysAlphabetically(existingItem.request.body.urlencoded);
             } else if (this.hasFormdataPropertiesArr(existingItem)) {
               existingItem.request.body.formdata = this.getListOfUniqueProperties(
                 ...existingItem.request.body.formdata.all(),
                 ...item.request.body.urlencoded.all(),
               );
+              this.sortKeysAlphabetically(existingItem.request.body.formdata);
             }
           }
-        } else if (item.request.method === HTTPMethods.POST
+        } else if (item.request.method !== HTTPMethods.GET
         && this.hasFormdataPropertiesArr(item)
         && item.request.body.formdata.count()) {
-          if (existingItem.request.method === HTTPMethods.POST) {
+          if (existingItem.request.method !== HTTPMethods.GET) {
             if (this.hasFormdataPropertiesArr(existingItem)) {
               existingItem.request.body.formdata = this.getListOfUniqueProperties(
                 ...existingItem.request.body.formdata.all(),
                 ...item.request.body.formdata.all(),
               );
+              this.sortKeysAlphabetically(existingItem.request.body.formdata);
             } else if (this.hasUrlencodedPropertiesArr(existingItem)) {
               existingItem.request.body.urlencoded = this.getListOfUniqueProperties(
                 ...existingItem.request.body.urlencoded.all(),
                 ...item.request.body.formdata.all(),
               );
+              this.sortKeysAlphabetically(existingItem.request.body.urlencoded);
             }
           }
         } else if (this.hasExistingQueryProperties(item)) {
@@ -106,30 +185,16 @@ class DataUtils {
               ...existingItem.request.url.query.all(),
               ...item.request.url.query.all(),
             );
+            this.sortKeysAlphabetically(existingItem.request.url.query);
           }
         }
       }
     });
   }
 
-  static setUniqueResponseTemplatesFromSameItem(folder, item) {
-    folder.items.all().forEach((existingItem) => {
-      if (_.isEqual(existingItem.request.url.path, item.request.url.path)
-      && existingItem.name.toUpperCase() === item.name.toUpperCase()
-      && existingItem.request.method === item.request.method) {
-        existingItem.responses = this.getListOfUniqueResponseTemplates(
-          ...existingItem.responses.all(),
-          ...item.responses.all(),
-        );
-      }
-    });
-  }
-
   static setUniqueEventsFromSameItem(folder, item) {
     folder.items.all().forEach((existingItem) => {
-      if (_.isEqual(existingItem.request.url.path, item.request.url.path)
-      && existingItem.name.toUpperCase() === item.name.toUpperCase()
-      && existingItem.request.method === item.request.method) {
+      if (this.isExistingAndNewItemEqual(existingItem, item)) {
         existingItem.events = this.getListOfUniqueEvents(
           ...existingItem.events.all(),
           ...item.events.all(),
@@ -138,12 +203,37 @@ class DataUtils {
     });
   }
 
+  static setUniqueTemplatesFromSameItem(folder, item) {
+    folder.items.all().forEach((existingItem) => {
+      if (this.isExistingAndNewItemEqual(existingItem, item)) {
+        existingItem.responses = this.getListOfUniqueTemplates(
+          { namesCompare: true },
+          [...existingItem.responses.all(), ...item.responses.all()],
+        );
+        this.sortNamesAlphabetically(existingItem.responses);
+      }
+    });
+  }
+
+  static setUniqueRequestBodiesFromSameItemAsTemplates(folder, item) {
+    folder.items.all().forEach((existingItem) => {
+      if (this.isExistingAndNewItemEqual(existingItem, item)
+      && !this.hasEmptyBody(existingItem)
+      && !this.hasEqualBodies(existingItem, item)) {
+        existingItem.responses = this.addUniqueBodyToTemplateList(
+          existingItem,
+          item,
+        );
+      }
+    });
+  }
+
   static disableProperties(item) {
-    if (item.request.method === HTTPMethods.POST
+    if (item.request.method !== HTTPMethods.GET
     && this.hasUrlencodedPropertiesArr(item)
     && item.request.body.urlencoded.count()) {
       item.request.body.urlencoded.all().forEach((property) => { property.disabled = true; });
-    } else if (item.request.method === HTTPMethods.POST
+    } else if (item.request.method !== HTTPMethods.GET
     && this.hasFormdataPropertiesArr(item)
     && item.request.body.formdata.count()) {
       item.request.body.formdata.all().forEach((property) => { property.disabled = true; });
@@ -224,6 +314,12 @@ class DataUtils {
       delete item.request.url.port;
       delete item.request.url.protocol;
       this.hostAndPathModify(item, host, path, { hostOverride: Services.NOTIFICATION });
+    } else if (path[1] === 'acquiring') {
+      path[1] = Services.KASPI;
+    } else if (path[1] === 'quotes') {
+      delete item.request.url.port;
+      delete item.request.url.protocol;
+      this.hostAndPathModify(item, host, path, { hostOverride: Services.KASKO });
     } else if (port === '8013') {
       delete item.request.url.port;
       delete item.request.url.protocol;
@@ -261,8 +357,6 @@ class DataUtils {
       delete item.request.url.port;
       delete item.request.url.protocol;
       this.hostAndPathModify(item, host, path, { hostOverride: Services.MEDPOOL });
-    } else if (path[1] === 'acquiring') {
-      path[1] = Services.KASPI;
     } else if (host[0].includes(`GO${Services.ASYNC.toUpperCase()}`)) {
       this.hostAndPathModify(item, host, path, { hostOverride: Services.ASYNC });
     } else if (host[0] === '{{API_URL}}') {
@@ -347,12 +441,11 @@ class DataUtils {
           const folder = this.getOrCreateFolder(sortedCollection, folderName);
 
           if (folder.items.all()
-            .some((existingItem) => _.isEqual(existingItem.request.url.path, item.request.url.path)
-            && existingItem.name.toUpperCase() === item.name.toUpperCase()
-            && existingItem.request.method === item.request.method)) {
-            this.setUniqueResponseTemplatesFromSameItem(folder, item);
+            .some((existingItem) => this.isExistingAndNewItemEqual(existingItem, item))) {
             this.setUniquePropertiesFromSameItem(folder, item);
             this.setUniqueEventsFromSameItem(folder, item);
+            this.setUniqueRequestBodiesFromSameItemAsTemplates(folder, item);
+            this.setUniqueTemplatesFromSameItem(folder, item);
           } else {
             folder.items.add(item);
           }
@@ -473,6 +566,7 @@ class DataUtils {
       ? uniqueVariables.filter((variable) => variable.key !== HostPlaceholders.GATEWAY[0].match(/{{(.*?)}}/)[1].trim())
       : uniqueVariables;
     uniqueVariables = new PropertyList(Variable, null, uniqueVariables);
+    this.sortKeysAlphabetically(uniqueVariables);
     productsCollection.variables = uniqueVariables;
     servicesCollection.variables = uniqueVariables;
   }
@@ -494,7 +588,7 @@ class DataUtils {
 
   static orderItemsAlphabetically(groupedCollection) {
     const { items } = groupedCollection;
-    items.members.sort((a, b) => a.name.localeCompare(b.name));
+    this.sortNamesAlphabetically(items);
     items.members.forEach((item) => {
       if (item.items && item.items.count()) {
         this.orderItemsAlphabetically(item);

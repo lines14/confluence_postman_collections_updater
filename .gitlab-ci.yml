@@ -6,7 +6,7 @@ update:
   only:
     - dev
   tags:
-    - eks-dev
+    - k8s
   before_script:
     - echo "${UPDATER_ENV}" | tr -d '\r' > ./.env
     - npm install

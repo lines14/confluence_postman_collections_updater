@@ -1,6 +1,5 @@
 export const HTTPMethods = Object.freeze({
   GET: 'GET',
-  POST: 'POST',
 });
 
 export const Protocols = Object.freeze({
