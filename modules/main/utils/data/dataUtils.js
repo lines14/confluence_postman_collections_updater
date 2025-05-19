@@ -9,7 +9,16 @@ import {
 import JSONLoader from './JSONLoader.js';
 
 const {
-  ItemGroup, Item, PropertyList, QueryParam, FormParam, Response, Variable, Event,
+  ItemGroup,
+  Item,
+  PropertyList,
+  QueryParam,
+  FormParam,
+  Response,
+  Variable,
+  Event,
+  RequestAuth,
+  VariableList,
 } = postmanCollection;
 
 class DataUtils {
@@ -242,6 +251,24 @@ class DataUtils {
     }
   }
 
+  static addBearerTokenAuthIfEmpty(item) {
+    if (!item.request.auth
+      && item.request.url.path
+      && item.request.url.path.every((substr) => !substr.includes('login'))) {
+      Logger.log(`[inf]   adding bearer token placeholder for ${item.name}`);
+      const authPlaceholderObj = new Variable({
+        key: JSONLoader.config.tokenPlaceholder,
+        value: `{{${JSONLoader.config.tokenPlaceholder.toUpperCase()}}}`,
+      });
+      const bearerAuthList = new VariableList(null, [authPlaceholderObj]);
+      const auth = new RequestAuth({
+        type: 'bearer',
+        bearer: bearerAuthList,
+      });
+      item.request.auth = auth;
+    }
+  }
+
   static startsWithNumberOrLocalhost(str) {
     return /^\d/.test(str) || str === 'localhost';
   }
@@ -385,7 +412,7 @@ class DataUtils {
     return item.request.url.host;
   }
 
-  static getFolderName(host, port, path) {
+  static getFolderName(item, host, port, path) {
     let folderName;
     if (path.length > 2
     && (path[0] === 'api' || path[0] === 'clients')
@@ -421,7 +448,11 @@ class DataUtils {
     } else if (host[0].toUpperCase().includes(Services.AMANAT24.toUpperCase())) {
       folderName = this.trimPlaceholder(host[0]).toUpperCase();
     } else if (host[2] === 'mockbin') {
-      folderName = Services.CARGO.toUpperCase();
+      if (item.name.includes('refund')) {
+        folderName = Services.KASPI.toUpperCase();
+      } else {
+        folderName = Services.CARGO.toUpperCase();
+      }
     } else {
       folderName = Services.AUTH.toUpperCase();
     }
@@ -436,8 +467,9 @@ class DataUtils {
         if (path && path.every((substr) => !substr.includes('hs'))) {
           Logger.log(`[inf]   processing "${item.name}" request path: /${path.join('/')}`);
           this.disableProperties(item);
+          this.addBearerTokenAuthIfEmpty(item);
           const updatedHost = this.fixHostAndPath(item, host, port, path);
-          const folderName = this.getFolderName(updatedHost, port, path);
+          const folderName = this.getFolderName(item, updatedHost, port, path);
           const folder = this.getOrCreateFolder(sortedCollection, folderName);
 
           if (folder.items.all()

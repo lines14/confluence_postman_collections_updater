@@ -5,6 +5,7 @@
     "logMaxSizeMegabytes": "5120",
     "branch": "dev",
     "templateNamePattern": "-template-from-body",
+    "tokenPlaceholder": "token",
     "commitMessage": "autoupdate output collections [skip ci]",
     "collectionSchema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "testCollectionNamesToParse": [],
