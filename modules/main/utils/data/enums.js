@@ -35,6 +35,7 @@ export const Services = Object.freeze({
   KASPI: 'kaspi',
   KASKO: 'kasko',
   MEDPOOL: 'medpool',
+  MEDPUL: 'medpul',
   NOTIFICATION: 'notification',
   DICTIONARY: 'dictionary',
   AUTH: 'auth',

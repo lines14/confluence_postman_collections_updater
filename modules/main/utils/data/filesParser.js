@@ -155,6 +155,20 @@ const processDirObjects = (dirObjects) => {
   return updatedDirObjects;
 };
 
+const checkTestAndProdFilesInTargetFolders = (dirObjects) => {
+  dirObjects.forEach((dirObj) => {
+    dirObj.fileObjects.forEach((fileObj) => {
+      if (dirObj.dirPath.includes('test')
+        && fileObj.fileName.split('_').map((subStr) => subStr.toLowerCase()).includes('production')) {
+        throw new Error(`[err]   file "${fileObj.fileName}" not in "input_prod_collections" folder`);
+      } else if (dirObj.dirPath.includes('prod')
+        && fileObj.fileName.split('_').map((subStr) => subStr.toLowerCase()).includes('test')) {
+        throw new Error(`[err]   file "${fileObj.fileName}" not in "input_test_collections" folder`);
+      }
+    });
+  });
+};
+
 const generateJSONLoader = (filePath, absoleteDirPathArr, relativeDirPathArr) => {
   let dirObjects = absoleteDirPathArr.reduce((filesArr, absoleteDirPath) => {
     const dirObj = getFiles(absoleteDirPath, fileExtension);
@@ -163,6 +177,7 @@ const generateJSONLoader = (filePath, absoleteDirPathArr, relativeDirPathArr) =>
     return filesArr.concat(dirObj);
   }, []);
   dirObjects = processDirObjects(dirObjects);
+  checkTestAndProdFilesInTargetFolders(dirObjects);
   const imports = dirObjects.reduce((importsArr, dirObj) => importsArr
     .concat(generateImports(relativeDirPathArr, dirObj)), []).join('');
   const classInit = '\nclass JSONLoader {\n';

@@ -6,6 +6,7 @@
     "branch": "dev",
     "templateNamePattern": "-template-from-body",
     "tokenPlaceholder": "token",
+    "loginRequestName": "login",
     "commitMessage": "autoupdate output collections [skip ci]",
     "collectionSchema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "testCollectionNamesToParse": [],
@@ -40,5 +41,15 @@
         "crawler",
         "signerscript",
         "numerator"
+    ],
+    "authIgnoredFolders": [
+        "cr-lr-value",
+        "CRUD categories",
+        "HALYK HOMEBANK TEST",
+        "m-adp 1C setagent",
+        "TEST",
+        "USERS",
+        "v1",
+        "WEBBOX"
     ]
 }

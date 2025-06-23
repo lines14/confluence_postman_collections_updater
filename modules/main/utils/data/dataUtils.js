@@ -1,4 +1,4 @@
-/* eslint no-param-reassign: ["error", { "props": false }] */
+/* eslint no-param-reassign: ["off"] */
 import fs from 'fs';
 import _ from 'lodash';
 import postmanCollection from 'postman-collection';
@@ -52,9 +52,20 @@ class DataUtils {
   }
 
   static getListOfUniqueProperties(...propertyList) {
-    const uniqueProperties = propertyList.filter((propertyPair, index, arr) => index === arr
-      .findIndex((foundPropertyPair) => foundPropertyPair.key === propertyPair.key
-      && foundPropertyPair.value === propertyPair.value));
+    const uniqueProperties = propertyList.filter((propertyPair, index, arr) => {
+      const foundIndex = arr
+        .findIndex((foundPropertyPair) => foundPropertyPair.key === propertyPair.key
+        && foundPropertyPair.value === propertyPair.value);
+      if (index === foundIndex) return true;
+      const firstMatch = arr[foundIndex];
+      if (propertyPair.description) {
+        firstMatch.description = firstMatch.description
+          ? `${firstMatch.description};${propertyPair.description}`
+          : propertyPair.description;
+      }
+
+      return false;
+    });
 
     const itemType = uniqueProperties[0] instanceof QueryParam ? QueryParam : FormParam;
     return new PropertyList(itemType, null, uniqueProperties);
@@ -79,8 +90,8 @@ class DataUtils {
     throw new Error(Logger.log('[err]   template\'s name not has numeric character at the end'));
   }
 
-  static sortStringsWithNumbersASC(nameList) {
-    return nameList.sort((a, b) => {
+  static sortStringsWithNumbersASC(stringsArr) {
+    return stringsArr.sort((a, b) => {
       const numA = this.getNumberFromLastNumericCharacter(a);
       const numB = this.getNumberFromLastNumericCharacter(b);
       return numA - numB;
@@ -91,8 +102,12 @@ class DataUtils {
     elementsArr.members.sort((a, b) => a.name.localeCompare(b.name));
   }
 
+  static sortStringsAlphabetically(stringsArr) {
+    stringsArr.sort((a, b) => a.localeCompare(b));
+  }
+
   static sortKeysAlphabetically(elementsArr) {
-    elementsArr.members.sort((a, b) => {
+    elementsArr.sort((a, b) => {
       const keyA = a.key || '';
       const keyB = b.key || '';
       return keyA.localeCompare(keyB);
@@ -129,8 +144,12 @@ class DataUtils {
 
   static isExistingAndNewItemEqual(existingItem, newItem) {
     return _.isEqual(existingItem.request.url.path, newItem.request.url.path)
-    && existingItem.name.toUpperCase() === newItem.name.toUpperCase()
-    && existingItem.request.method === newItem.request.method;
+    && existingItem.request.method === newItem.request.method
+    && (existingItem.name.toUpperCase() === newItem.name.toUpperCase()
+    || ((existingItem.name.toLowerCase() === Services.AUTH
+    && newItem.name.toLowerCase() === JSONLoader.config.loginRequestName)
+    || (newItem.name.toLowerCase() === Services.AUTH
+    && existingItem.name.toLowerCase() === JSONLoader.config.loginRequestName)));
   }
 
   static hasEmptyBody(item) {
@@ -161,13 +180,13 @@ class DataUtils {
                 ...existingItem.request.body.urlencoded.all(),
                 ...item.request.body.urlencoded.all(),
               );
-              this.sortKeysAlphabetically(existingItem.request.body.urlencoded);
+              this.sortKeysAlphabetically(existingItem.request.body.urlencoded.members);
             } else if (this.hasFormdataPropertiesArr(existingItem)) {
               existingItem.request.body.formdata = this.getListOfUniqueProperties(
                 ...existingItem.request.body.formdata.all(),
                 ...item.request.body.urlencoded.all(),
               );
-              this.sortKeysAlphabetically(existingItem.request.body.formdata);
+              this.sortKeysAlphabetically(existingItem.request.body.formdata.members);
             }
           }
         } else if (item.request.method !== HTTPMethods.GET
@@ -179,13 +198,13 @@ class DataUtils {
                 ...existingItem.request.body.formdata.all(),
                 ...item.request.body.formdata.all(),
               );
-              this.sortKeysAlphabetically(existingItem.request.body.formdata);
+              this.sortKeysAlphabetically(existingItem.request.body.formdata.members);
             } else if (this.hasUrlencodedPropertiesArr(existingItem)) {
               existingItem.request.body.urlencoded = this.getListOfUniqueProperties(
                 ...existingItem.request.body.urlencoded.all(),
                 ...item.request.body.formdata.all(),
               );
-              this.sortKeysAlphabetically(existingItem.request.body.urlencoded);
+              this.sortKeysAlphabetically(existingItem.request.body.urlencoded.members);
             }
           }
         } else if (this.hasExistingQueryProperties(item)) {
@@ -194,7 +213,7 @@ class DataUtils {
               ...existingItem.request.url.query.all(),
               ...item.request.url.query.all(),
             );
-            this.sortKeysAlphabetically(existingItem.request.url.query);
+            this.sortKeysAlphabetically(existingItem.request.url.query.members);
           }
         }
       }
@@ -227,6 +246,7 @@ class DataUtils {
   static setUniqueRequestBodiesFromSameItemAsTemplates(folder, item) {
     folder.items.all().forEach((existingItem) => {
       if (this.isExistingAndNewItemEqual(existingItem, item)
+      && existingItem.request.body?.mode === 'raw'
       && !this.hasEmptyBody(existingItem)
       && !this.hasEqualBodies(existingItem, item)) {
         existingItem.responses = this.addUniqueBodyToTemplateList(
@@ -251,10 +271,41 @@ class DataUtils {
     }
   }
 
+  static setFolderNamesToAuthPropertyDescriptions(item, folderName) {
+    if (item.request.url.path[1] === JSONLoader.config.loginRequestName
+      || (item.request.url.path[1] === Services.AUTH
+        && item.request.url.path[2] === JSONLoader.config.loginRequestName)) {
+      if (item.request.method !== HTTPMethods.GET
+      && this.hasUrlencodedPropertiesArr(item)
+      && item.request.body.urlencoded.count()) {
+        item.request.body.urlencoded.all().forEach((property) => {
+          property.description = property.description
+            ? `(${property.description});${folderName}`
+            : folderName;
+        });
+      } else if (item.request.method !== HTTPMethods.GET
+      && this.hasFormdataPropertiesArr(item)
+      && item.request.body.formdata.count()) {
+        item.request.body.formdata.all().forEach((property) => {
+          property.description = property.description
+            ? `(${property.description});${folderName}`
+            : folderName;
+        });
+      } else if (this.hasExistingQueryProperties(item)) {
+        item.request.url.query.all().forEach((property) => {
+          property.description = property.description
+            ? `(${property.description});${folderName}`
+            : folderName;
+        });
+      }
+    }
+  }
+
   static addBearerTokenAuthIfEmpty(item) {
     if (!item.request.auth
       && item.request.url.path
-      && item.request.url.path.every((substr) => !substr.includes('login'))) {
+      && item.request.url.path.every((substr) => !substr
+        .includes(JSONLoader.config.loginRequestName))) {
       Logger.log(`[inf]   adding bearer token placeholder for ${item.name}`);
       const authPlaceholderObj = new Variable({
         key: JSONLoader.config.tokenPlaceholder,
@@ -273,8 +324,9 @@ class DataUtils {
     return /^\d/.test(str) || str === 'localhost';
   }
 
-  static notEmptyOrHasNumber(str) {
-    return str.toLowerCase().startsWith('v') || (str !== '' && !/\d/.test(str));
+  static notEmptyOrNotHasNumber(str) {
+    return str.toLowerCase().startsWith('v')
+    || (str !== '' && !/\d/.test(str) && !str.toLowerCase().startsWith('med'));
   }
 
   static trimPlaceholder(str) {
@@ -436,9 +488,9 @@ class DataUtils {
         folderName = path[1].toUpperCase();
       }
     } else if (host.length > 1
-      && (host[1] === 'amanat24'
-      || host[1] === 'amanat24-dev'
-      || host[1] === 'medpul')) {
+      && (host[1] === Services.AMANAT24
+      || host[1] === `${Services.AMANAT24}-dev`
+      || host[1] === Services.MEDPUL)) {
       folderName = host[1].replace('-', '_').toUpperCase();
     } else if (host.length > 1
       && host[1] === 'amanat') {
@@ -460,13 +512,14 @@ class DataUtils {
     return folderName;
   }
 
-  static processItems(sortedCollection, originalCollection) {
+  static processItems(sortedCollection, originalCollection, oldFolderName) {
     originalCollection.items.each((item) => {
       if (item instanceof Item) {
         const { host, path, port } = item.request.url;
         if (path && path.every((substr) => !substr.includes('hs'))) {
           Logger.log(`[inf]   processing "${item.name}" request path: /${path.join('/')}`);
           this.disableProperties(item);
+          this.setFolderNamesToAuthPropertyDescriptions(item, oldFolderName);
           this.addBearerTokenAuthIfEmpty(item);
           const updatedHost = this.fixHostAndPath(item, host, port, path);
           const folderName = this.getFolderName(item, updatedHost, port, path);
@@ -484,7 +537,8 @@ class DataUtils {
         }
       } else if (item.items) {
         Logger.log(`[inf]   processing folder: ${item.name}`);
-        this.processItems(sortedCollection, item);
+        oldFolderName = item.name;
+        this.processItems(sortedCollection, item, oldFolderName);
       }
     });
   }
@@ -504,11 +558,11 @@ class DataUtils {
             if (path.length > 3) {
               if (host.some((substr) => substr.toUpperCase()
                 .includes(Services.AMANAT24.toUpperCase()))
-              && this.notEmptyOrHasNumber(path[1])) {
+              && this.notEmptyOrNotHasNumber(path[1])) {
                 const subFolderName = path[1].toUpperCase();
                 const subFolder = this.getOrCreateFolder(parentFolder, subFolderName);
-                if (this.notEmptyOrHasNumber(path[3])
-                && this.notEmptyOrHasNumber(path[2])) {
+                if (this.notEmptyOrNotHasNumber(path[3])
+                && this.notEmptyOrNotHasNumber(path[2])) {
                   const subSubFolderName = path[2].toUpperCase();
                   const subSubFolder = this.getOrCreateFolder(subFolder, subSubFolderName);
                   const subSubSubFolderName = path[3].toUpperCase();
@@ -519,22 +573,30 @@ class DataUtils {
                   Logger.log(`[inf]   moving "${item.name}" into /${folder.name}/${subFolderName}`);
                   subFolder.items.add(item);
                 }
-              } else if (this.notEmptyOrHasNumber(path[3])
-              && this.notEmptyOrHasNumber(path[2])) {
+              } else if (this.notEmptyOrNotHasNumber(path[3])
+                && this.notEmptyOrNotHasNumber(path[2])) {
                 const subFolderName = path[2].toUpperCase();
                 const subFolder = this.getOrCreateFolder(parentFolder, subFolderName);
                 const subSubFolderName = path[3].toUpperCase();
                 const subSubFolder = this.getOrCreateFolder(subFolder, subSubFolderName);
                 Logger.log(`[inf]   moving "${item.name}" into /${folder.name}/${subFolderName}/${subSubFolderName}`);
                 subSubFolder.items.add(item);
+              } else if (this.notEmptyOrNotHasNumber(path[2])) {
+                const subFolderName = path[2].toUpperCase();
+                const subFolder = this.getOrCreateFolder(parentFolder, subFolderName);
+                Logger.log(`[inf]   moving "${item.name}" into /${folder.name}/${subFolderName}`);
+                subFolder.items.add(item);
+              } else {
+                Logger.log(`[inf]   keeping "${item.name}" inside /${folder.name}`);
+                parentFolder.items.add(item);
               }
             } else if (path.length > 2) {
               if (host.some((substr) => substr.toUpperCase()
                 .includes(Services.AMANAT24.toUpperCase()))
-              && this.notEmptyOrHasNumber(path[1])) {
+              && this.notEmptyOrNotHasNumber(path[1])) {
                 const subFolderName = path[1].toUpperCase();
                 const subFolder = this.getOrCreateFolder(parentFolder, subFolderName);
-                if (this.notEmptyOrHasNumber(path[2])) {
+                if (this.notEmptyOrNotHasNumber(path[2])) {
                   const subSubFolderName = path[2].toUpperCase();
                   const subSubFolder = this.getOrCreateFolder(subFolder, subSubFolderName);
                   Logger.log(`[inf]   moving "${item.name}" into /${folder.name}/${subFolderName}/${subSubFolderName}`);
@@ -543,11 +605,14 @@ class DataUtils {
                   Logger.log(`[inf]   moving "${item.name}" into /${folder.name}/${subFolderName}`);
                   subFolder.items.add(item);
                 }
-              } else if (this.notEmptyOrHasNumber(path[2])) {
+              } else if (this.notEmptyOrNotHasNumber(path[2])) {
                 const subFolderName = path[2].toUpperCase();
                 const subFolder = this.getOrCreateFolder(parentFolder, subFolderName);
                 Logger.log(`[inf]   moving "${item.name}" into /${folder.name}/${subFolderName}`);
                 subFolder.items.add(item);
+              } else {
+                Logger.log(`[inf]   keeping "${item.name}" inside /${folder.name}`);
+                parentFolder.items.add(item);
               }
             } else {
               Logger.log(`[inf]   keeping "${item.name}" inside /${folder.name}`);
@@ -598,24 +663,28 @@ class DataUtils {
       ? uniqueVariables.filter((variable) => variable.key !== HostPlaceholders.GATEWAY[0].match(/{{(.*?)}}/)[1].trim())
       : uniqueVariables;
     uniqueVariables = new PropertyList(Variable, null, uniqueVariables);
-    this.sortKeysAlphabetically(uniqueVariables);
+    this.sortKeysAlphabetically(uniqueVariables.members);
     productsCollection.variables = uniqueVariables;
     servicesCollection.variables = uniqueVariables;
   }
 
-  static moveAuthMethodToRoot(productsCollection, servicesCollection) {
-    const itemName = _.capitalize(Services.AUTH);
-    const foundFolder = servicesCollection.items
-      .find((folder) => folder.name === itemName.toUpperCase());
-    if (foundFolder) {
-      const foundItemIndex = foundFolder.items.members.findIndex((item) => item.name === itemName);
-      if (foundItemIndex !== -1) {
-        const [foundItem] = foundFolder.items.members.splice(foundItemIndex, 1);
-        servicesCollection.items.members.unshift(foundItem);
-        productsCollection.items.members.unshift(foundItem);
-        Logger.log(`[inf]   moving item "${itemName}" from folder "${foundFolder.name}" to root`);
+  static moveAuthMethodsToRoot(productsCollection, servicesCollection) {
+    const itemNames = [_.capitalize(Services.AUTH), JSONLoader.config.loginRequestName];
+    itemNames.forEach((itemName) => {
+      const foundFolder = servicesCollection.items
+        .find((folder) => folder.name === Services.AUTH.toUpperCase());
+      if (foundFolder) {
+        const foundItemIndex = foundFolder.items.members
+          .findIndex((item) => item.name === itemName);
+        if (foundItemIndex !== -1) {
+          Logger.log(`[inf]   moving item "${itemName}" from folder "${foundFolder.name}" to root`);
+          const [foundItem] = foundFolder.items.members.splice(foundItemIndex, 1);
+          this.groupPropertiesByDescription(foundItem);
+          servicesCollection.items.members.unshift(foundItem);
+          productsCollection.items.members.unshift(foundItem);
+        }
       }
-    }
+    });
   }
 
   static orderItemsAlphabetically(groupedCollection) {
@@ -626,6 +695,65 @@ class DataUtils {
         this.orderItemsAlphabetically(item);
       }
     });
+  }
+
+  static groupPropertiesByDescription(item) {
+    if (item.request.method !== HTTPMethods.GET
+    && this.hasUrlencodedPropertiesArr(item)
+    && item.request.body.urlencoded.count()) {
+      item.request.body.urlencoded = this
+        .getListOfGroupedProperties(item.request.body.urlencoded.all());
+    } else if (item.request.method !== HTTPMethods.GET
+    && this.hasFormdataPropertiesArr(item)
+    && item.request.body.formdata.count()) {
+      item.request.body.formdata = this
+        .getListOfGroupedProperties(item.request.body.formdata.all());
+    }
+  }
+
+  static getListOfGroupedProperties(propertyList) {
+    const processedProperties = [];
+    const allAutogenPropertyGroups = [];
+    propertyList.forEach((property) => {
+      const splittedPropertyDescription = property.description.split(';');
+      const uniquePropertyGroups = [...new Set(splittedPropertyDescription)];
+      const uniqueAutogenPropertyGroups = uniquePropertyGroups
+        .filter((propertyGroup) => !propertyGroup.startsWith('('));
+      allAutogenPropertyGroups.push(...uniqueAutogenPropertyGroups);
+      property.description = uniquePropertyGroups;
+    });
+
+    const allUniqueAutogenPropertyGroups = [...new Set(allAutogenPropertyGroups)];
+    this.sortStringsAlphabetically(allUniqueAutogenPropertyGroups);
+
+    const allFilteredUniqueAutogenPropertyGroups = allUniqueAutogenPropertyGroups
+      .filter((uniqueAutogenPropertyGroup) => JSONLoader.config.servicesFolders
+        .filter((serviceFolder) => serviceFolder !== Services.AUTH)
+        .every((serviceFolder) => !uniqueAutogenPropertyGroup.toUpperCase()
+          .includes(serviceFolder.toUpperCase()))
+    && !JSONLoader.config.authIgnoredFolders.includes(uniqueAutogenPropertyGroup));
+
+    allFilteredUniqueAutogenPropertyGroups.forEach((filteredUniqueAutogenPropertyGroup) => {
+      const uniqueProperties = [];
+      propertyList.forEach((property) => {
+        const uniqueNonAutogenPropertyGroups = property.description
+          .filter((propertyGroup) => propertyGroup.startsWith('('));
+        const resultProperty = structuredClone(property);
+        if (property.description.includes(filteredUniqueAutogenPropertyGroup)
+          && property.value !== '') {
+          resultProperty.description = uniqueNonAutogenPropertyGroups.length
+            ? `${filteredUniqueAutogenPropertyGroup}, ${uniqueNonAutogenPropertyGroups.join(';')}`
+            : `${filteredUniqueAutogenPropertyGroup}`;
+          uniqueProperties.push(resultProperty);
+        }
+      });
+
+      this.sortKeysAlphabetically(uniqueProperties);
+      processedProperties.push(...uniqueProperties);
+    });
+
+    const itemType = processedProperties[0] instanceof QueryParam ? QueryParam : FormParam;
+    return new PropertyList(itemType, null, processedProperties);
   }
 }
 

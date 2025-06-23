@@ -71,7 +71,12 @@ const updateCollections = () => {
 
   originalTestCollections.forEach((originalCollection) => {
     if (originalCollection?.items.count() > 0) {
-      DataUtils.processItems(sortedTestProductsAndServicesCollection, originalCollection);
+      let oldFolderName;
+      DataUtils.processItems(
+        sortedTestProductsAndServicesCollection,
+        originalCollection,
+        oldFolderName,
+      );
     } else {
       Logger.log('[err]   no items found in the original test collection!');
     }
@@ -79,7 +84,12 @@ const updateCollections = () => {
 
   originalProdCollections.forEach((originalCollection) => {
     if (originalCollection?.items.count() > 0) {
-      DataUtils.processItems(sortedProdProductsAndServicesCollection, originalCollection);
+      let oldFolderName;
+      DataUtils.processItems(
+        sortedProdProductsAndServicesCollection,
+        originalCollection,
+        oldFolderName,
+      );
     } else {
       Logger.log('[err]   no items found in the original production collection!');
     }
@@ -123,8 +133,8 @@ const updateCollections = () => {
     originalProdCollections,
   );
 
-  DataUtils.moveAuthMethodToRoot(testProductsCollection, testServicesCollection);
-  DataUtils.moveAuthMethodToRoot(prodProductsCollection, prodServicesCollection);
+  DataUtils.moveAuthMethodsToRoot(testProductsCollection, testServicesCollection);
+  DataUtils.moveAuthMethodsToRoot(prodProductsCollection, prodServicesCollection);
   DataUtils.saveToJSON(testProductsCollection);
   DataUtils.saveToJSON(testServicesCollection);
   DataUtils.saveToJSON(prodProductsCollection);
