@@ -2,6 +2,7 @@ import postmanCollection from 'postman-collection';
 import Logger from './modules/main/utils/log/logger.js';
 import DataUtils from './modules/main/utils/data/dataUtils.js';
 import JSONLoader from './modules/main/utils/data/JSONLoader.js';
+import ImageUtils from './modules/main/utils/image/imageUtils.js';
 
 const updateCollections = () => {
   const { Collection } = postmanCollection;
@@ -15,6 +16,12 @@ const updateCollections = () => {
   const originalProdCollections = JSONLoader.inputProdFileObjects
     .filter((fileObj) => (!JSONLoader.config.parseAllProdCollections
       ? JSONLoader.config.prodCollectionNamesToParse.includes(fileObj.fileName)
+      : fileObj))
+    .map((fileObj) => new Collection(JSONLoader[fileObj.fileName]));
+
+  const originalOnesCollections = JSONLoader.inputOnesFileObjects
+    .filter((fileObj) => (!JSONLoader.config.parseAllOnesCollections
+      ? JSONLoader.config.onesCollectionNamesToParse.includes(fileObj.fileName)
       : fileObj))
     .map((fileObj) => new Collection(JSONLoader[fileObj.fileName]));
 
@@ -48,6 +55,11 @@ const updateCollections = () => {
     schema: JSONLoader.config.collectionSchema,
   };
 
+  const onesCollectionInfo = {
+    name: 'NEW_1C_JSON_TEST_PROD',
+    schema: JSONLoader.config.collectionSchema,
+  };
+
   const sortedTestProductsAndServicesCollection = new Collection({
     info: testProductsAndServicesCollectionInfo,
   });
@@ -64,10 +76,25 @@ const updateCollections = () => {
     info: prodProductsAndServicesCollectionInfo,
   });
 
+  const sortedOnesCollection = new Collection({ info: onesCollectionInfo });
+
   const testProductsCollection = new Collection({ info: testProductsCollectionInfo });
   const testServicesCollection = new Collection({ info: testServicesCollectionInfo });
   const prodProductsCollection = new Collection({ info: prodProductsCollectionInfo });
   const prodServicesCollection = new Collection({ info: prodServicesCollectionInfo });
+
+  originalOnesCollections.forEach((originalCollection) => {
+    if (originalCollection?.items.count() > 0) {
+      let oldFolderName;
+      DataUtils.processItems(
+        sortedOnesCollection,
+        originalCollection,
+        oldFolderName,
+      );
+    } else {
+      Logger.log('[err]   no items found in the original ones collection!');
+    }
+  });
 
   originalTestCollections.forEach((originalCollection) => {
     if (originalCollection?.items.count() > 0) {
@@ -95,6 +122,10 @@ const updateCollections = () => {
     }
   });
 
+  DataUtils.removeRedundantRootFolders(sortedOnesCollection, { onesCollection: true });
+  DataUtils.removeRedundantRootFolders(sortedTestProductsAndServicesCollection);
+  DataUtils.removeRedundantRootFolders(sortedProdProductsAndServicesCollection);
+
   DataUtils.groupItems(
     groupedTestProductsAndServicesCollection,
     sortedTestProductsAndServicesCollection,
@@ -105,6 +136,7 @@ const updateCollections = () => {
     sortedProdProductsAndServicesCollection,
   );
 
+  DataUtils.orderItemsAlphabetically(sortedOnesCollection);
   DataUtils.orderItemsAlphabetically(groupedTestProductsAndServicesCollection);
   DataUtils.orderItemsAlphabetically(groupedProdProductsAndServicesCollection);
 
@@ -135,10 +167,13 @@ const updateCollections = () => {
 
   DataUtils.moveAuthMethodsToRoot(testProductsCollection, testServicesCollection);
   DataUtils.moveAuthMethodsToRoot(prodProductsCollection, prodServicesCollection);
+
+  DataUtils.saveToJSON(sortedOnesCollection);
   DataUtils.saveToJSON(testProductsCollection);
   DataUtils.saveToJSON(testServicesCollection);
   DataUtils.saveToJSON(prodProductsCollection);
   DataUtils.saveToJSON(prodServicesCollection);
+  ImageUtils.generateDateImage();
 };
 
 updateCollections();

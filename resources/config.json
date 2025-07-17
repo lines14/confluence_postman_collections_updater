@@ -1,12 +1,25 @@
 {
     "parseAllTestCollections": true,
     "parseAllProdCollections": true,
+    "parseAllOnesCollections": true,
     "hiddenLogBodies": true,
     "logMaxSizeMegabytes": "5120",
     "branch": "dev",
-    "templateNamePattern": "-template-from-body",
-    "tokenPlaceholder": "token",
-    "loginRequestName": "login",
+    "datesFormat": "DD.MM.YYYY",
+    "canvasContext": {
+        "font": "25px 'DejaVu Sans'",
+        "fontBold": "bold 25px 'DejaVu Sans'",
+        "bgColor": "#ffffff",
+        "textColorBlack": "#000000",
+        "textColorRed": "#ff0000",
+        "horizontalPadding": 2,
+        "verticalPadding": 23
+    },
+    "canvasDimensions": { 
+        "width": 805, 
+        "height": 30
+    },
+    "imageTextPrefix": "Дата последнего автоматического обновления: ",
     "commitMessage": "autoupdate output collections [skip ci]",
     "collectionSchema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "testCollectionNamesToParse": [],
@@ -15,41 +28,7 @@
         "NEW_PRODUCTION_PRODUCTS",
         "NEW_PRODUCTION_SERVICES",
         "NEW_TEST_PRODUCTS",
-        "NEW_TEST_SERVICES"
-    ],
-    "servicesFolders": [
-        "elastic",
-        "archive",
-        "auth",
-        "docs",
-        "notification",
-        "client",
-        "async",
-        "dictionary",
-        "policy",
-        "ocr",
-        "generative_ai",
-        "esbd",
-        "ones",
-        "pay",
-        "kaspi",
-        "nurkassa_kz",
-        "filerepo",
-        "short_link",
-        "signer",
-        "dwh",
-        "crawler",
-        "signerscript",
-        "numerator"
-    ],
-    "authIgnoredFolders": [
-        "cr-lr-value",
-        "CRUD categories",
-        "HALYK HOMEBANK TEST",
-        "m-adp 1C setagent",
-        "TEST",
-        "USERS",
-        "v1",
-        "WEBBOX"
+        "NEW_TEST_SERVICES",
+        "NEW_1C_JSON_TEST_PROD"
     ]
 }

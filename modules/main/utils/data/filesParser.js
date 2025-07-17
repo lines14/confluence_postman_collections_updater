@@ -7,11 +7,13 @@ const resourcesDirectoryPath = './resources';
 const outputDirectoryPath = './output_collections';
 const inputTestDirectoryPath = './input_test_collections';
 const inputProdDirectoryPath = './input_prod_collections';
+const inputOnesDirectoryPath = './input_ones_collections';
 const envDirectoryPath = path.resolve();
 const fileLocation = path.join(path.resolve(), './modules/main/utils/data/JSONLoader.js');
 
 const absoleteInputTestDirectoryPath = path.relative(path.resolve(), inputTestDirectoryPath);
 const absoleteInputProdDirectoryPath = path.relative(path.resolve(), inputProdDirectoryPath);
+const absoleteInputOnesDirectoryPath = path.relative(path.resolve(), inputOnesDirectoryPath);
 const absoleteOutputDirectoryPath = path.relative(path.resolve(), outputDirectoryPath);
 const absoleteResourcesDirectoryPath = path.relative(path.resolve(), resourcesDirectoryPath);
 
@@ -22,6 +24,10 @@ const relativeInputTestDirectoryPath = path.relative(
 const relativeInputProdDirectoryPath = path.relative(
   path.dirname(new URL(import.meta.url).pathname),
   inputProdDirectoryPath,
+);
+const relativeInputOnesDirectoryPath = path.relative(
+  path.dirname(new URL(import.meta.url).pathname),
+  inputOnesDirectoryPath,
 );
 const relativeOutputDirectoryPath = path.relative(
   path.dirname(new URL(import.meta.url).pathname),
@@ -35,12 +41,14 @@ const relativeResourcesDirectoryPath = path.relative(
 const absoleteDirectoryPathArr = [
   absoleteInputTestDirectoryPath,
   absoleteInputProdDirectoryPath,
+  absoleteInputOnesDirectoryPath,
   absoleteOutputDirectoryPath,
   absoleteResourcesDirectoryPath,
 ];
 const relativeDirectoryPathArr = [
   relativeInputTestDirectoryPath,
   relativeInputProdDirectoryPath,
+  relativeInputOnesDirectoryPath,
   relativeOutputDirectoryPath,
   relativeResourcesDirectoryPath,
 ];
@@ -81,6 +89,12 @@ const generateInputProdFileObjectsGetter = (dirObjects) => `\tstatic get inputPr
     .map((fileObj) => `{file: '${fileObj.file}', fileName: '${fileObj.fileName}'}`)
     .join(', '))}];\n\t}\n\n`;
 
+const generateInputOnesFileObjectsGetter = (dirObjects) => `\tstatic get inputOnesFileObjects() {\n\t\treturn [${dirObjects
+  .filter((dirObj) => dirObj.dirPath.includes('input_ones'))
+  .flatMap((dirObj) => dirObj.fileObjects
+    .map((fileObj) => `{file: '${fileObj.file}', fileName: '${fileObj.fileName}'}`)
+    .join(', '))}];\n\t}\n\n`;
+
 const generateOutputFileObjectsGetter = (dirObjects) => `\tstatic get outputFileObjects() {\n\t\treturn [${dirObjects
   .filter((dirObj) => dirObj.dirPath.includes('output'))
   .flatMap((dirObj) => dirObj.fileObjects
@@ -106,13 +120,16 @@ const flattenJSON = (obj) => {
   return result;
 };
 
+const addUnderscoreIfStartsWithNumber = (str) => (/^\d/.test(str) ? `_${str}` : str);
+
 const trimDotsAndSpacesInFileNames = (filename) => {
   const regex = /[ .\-+]/g;
   if (filename.endsWith(fileExtension)) {
     const lastDotIndex = filename.lastIndexOf('.');
     const name = filename.substring(0, lastDotIndex).replace(regex, '_');
     const extension = filename.substring(lastDotIndex);
-    return `${name}${extension}`;
+    const cleanedName = addUnderscoreIfStartsWithNumber(name);
+    return `${cleanedName}${extension}`;
   }
 
   return filename.replace(regex, '_');
@@ -158,12 +175,25 @@ const processDirObjects = (dirObjects) => {
 const checkTestAndProdFilesInTargetFolders = (dirObjects) => {
   dirObjects.forEach((dirObj) => {
     dirObj.fileObjects.forEach((fileObj) => {
-      if (dirObj.dirPath.includes('test')
-        && fileObj.fileName.split('_').map((subStr) => subStr.toLowerCase()).includes('production')) {
-        throw new Error(`[err]   file "${fileObj.fileName}" not in "input_prod_collections" folder`);
-      } else if (dirObj.dirPath.includes('prod')
-        && fileObj.fileName.split('_').map((subStr) => subStr.toLowerCase()).includes('test')) {
-        throw new Error(`[err]   file "${fileObj.fileName}" not in "input_test_collections" folder`);
+      if (dirObj.dirPath.includes('ones')) {
+        if (fileObj.fileName.split('_').map((subStr) => subStr.toLowerCase()).includes('production')) {
+          throw new Error(`[err]   file "${fileObj.fileName}" not in "input_prod_collections" folder!`);
+        } else if (fileObj.fileName.split('_').map((subStr) => subStr.toLowerCase()).includes('test')
+          && !(fileObj.fileName.split('_').includes('1C') || fileObj.fileName.split('_').includes('TWB'))) {
+          throw new Error(`[err]   file "${fileObj.fileName}" not in "input_test_collections" folder!`);
+        }
+      } else if (dirObj.dirPath.includes('test')) {
+        if (fileObj.fileName.split('_').map((subStr) => subStr.toLowerCase()).includes('production')) {
+          throw new Error(`[err]   file "${fileObj.fileName}" not in "input_prod_collections" folder!`);
+        } else if (fileObj.fileName.split('_').includes('1C') || fileObj.fileName.split('_').includes('TWB')) {
+          throw new Error(`[err]   file "${fileObj.fileName}" not in "input_ones_collections" folder!`);
+        }
+      } else if (dirObj.dirPath.includes('prod')) {
+        if (fileObj.fileName.split('_').map((subStr) => subStr.toLowerCase()).includes('test')) {
+          throw new Error(`[err]   file "${fileObj.fileName}" not in "input_test_collections" folder!`);
+        } else if (fileObj.fileName.split('_').includes('1C') || fileObj.fileName.split('_').includes('TWB')) {
+          throw new Error(`[err]   file "${fileObj.fileName}" not in "input_ones_collections" folder!`);
+        }
       }
     });
   });
@@ -183,6 +213,7 @@ const generateJSONLoader = (filePath, absoleteDirPathArr, relativeDirPathArr) =>
   const classInit = '\nclass JSONLoader {\n';
   const inputTestFileObjectsGetter = generateInputTestFileObjectsGetter(dirObjects);
   const inputProdFileObjectsGetter = generateInputProdFileObjectsGetter(dirObjects);
+  const inputOnesFileObjectsGetter = generateInputOnesFileObjectsGetter(dirObjects);
   const outputFileObjectsGetter = generateOutputFileObjectsGetter(dirObjects);
   const classBody = generateClassBody(dirObjects);
   const classExport = '}\n\nexport default JSONLoader;';
@@ -192,6 +223,7 @@ const generateJSONLoader = (filePath, absoleteDirPathArr, relativeDirPathArr) =>
     + classInit
     + inputTestFileObjectsGetter
     + inputProdFileObjectsGetter
+    + inputOnesFileObjectsGetter
     + outputFileObjectsGetter
     + classBody
     + classExport,

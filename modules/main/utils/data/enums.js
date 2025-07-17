@@ -2,14 +2,38 @@ export const HTTPMethods = Object.freeze({
   GET: 'GET',
 });
 
-export const Protocols = Object.freeze({
+export const patterns = Object.freeze({
+  TEMPLATE_NAME: '-template-from-body',
+});
+
+export const protocols = Object.freeze({
   HTTP: 'http',
   HTTPS: 'https',
 });
 
-export const HostPlaceholders = Object.freeze({
+export const placeholders = Object.freeze({
+  TOKEN: 'TOKEN',
+  LOGIN: 'login',
+});
+
+export const hostPlaceholders = Object.freeze({
+  LOCALHOST: [
+    'localhost',
+  ],
+  URL: [
+    '{{URL}}',
+  ],
   GATEWAY: [
     '{{GATEWAY_URL}}',
+  ],
+  WEB_ENV: [
+    '{{WEB_ENV}}',
+  ],
+  API_URL: [
+    '{{API_URL}}',
+  ],
+  HOST: [
+    '{{HOST}}',
   ],
   AMANAT24: [
     '{{amanat24_url}}',
@@ -27,7 +51,9 @@ export const HostPlaceholders = Object.freeze({
   ],
 });
 
-export const Services = Object.freeze({
+export const services = Object.freeze({
+  DWH: 'dwh',
+  ESBD: 'esbd',
   CARGO: 'cargo',
   ELASTIC: 'elastic',
   GATEWAY: 'gateway',
@@ -49,3 +75,40 @@ export const Services = Object.freeze({
   SIGNERSCRIPT: 'signerscript',
   ASYNC: 'async',
 });
+
+export const servicesFolders = Object.freeze([
+  'elastic',
+  'archive',
+  'auth',
+  'docs',
+  'notification',
+  'client',
+  'async',
+  'dictionary',
+  'policy',
+  'ocr',
+  'generative_ai',
+  'esbd',
+  'ones',
+  'pay',
+  'kaspi',
+  'nurkassa_kz',
+  'filerepo',
+  'short_link',
+  'signer',
+  'dwh',
+  'crawler',
+  'signerscript',
+  'numerator',
+]);
+
+export const authIgnoredFolders = Object.freeze([
+  'cr-lr-value',
+  'CRUD categories',
+  'HALYK HOMEBANK TEST',
+  'm-adp 1C setagent',
+  'TEST',
+  'USERS',
+  'v1',
+  'WEBBOX',
+]);
