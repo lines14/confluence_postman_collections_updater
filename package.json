@@ -20,7 +20,9 @@
         "config": "node ./modules/main/utils/data/filesParser.js",
         "update:run": "node ./collectionsUpdater.js",
         "publish:run": "node ./collectionsPublisher.js",
+        "link:run": "node ./modules/main/utils/data/passwordsToLoginsLinker.js $login $password",
         "update": "npm run config && npm run update:run",
-        "publish": "npm run config && npm run publish:run"
+        "publish": "npm run config && npm run publish:run",
+        "link": "npm run config && login=$login password=$password npm run link:run --"
     }
 }

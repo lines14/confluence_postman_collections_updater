@@ -78,6 +78,8 @@ const updateCollections = () => {
 
   const sortedOnesCollection = new Collection({ info: onesCollectionInfo });
 
+  const groupedOnesCollection = new Collection({ info: onesCollectionInfo });
+
   const testProductsCollection = new Collection({ info: testProductsCollectionInfo });
   const testServicesCollection = new Collection({ info: testServicesCollectionInfo });
   const prodProductsCollection = new Collection({ info: prodProductsCollectionInfo });
@@ -85,11 +87,9 @@ const updateCollections = () => {
 
   originalOnesCollections.forEach((originalCollection) => {
     if (originalCollection?.items.count() > 0) {
-      let oldFolderName;
       DataUtils.processItems(
         sortedOnesCollection,
         originalCollection,
-        oldFolderName,
       );
     } else {
       Logger.log('[err]   no items found in the original ones collection!');
@@ -98,11 +98,9 @@ const updateCollections = () => {
 
   originalTestCollections.forEach((originalCollection) => {
     if (originalCollection?.items.count() > 0) {
-      let oldFolderName;
       DataUtils.processItems(
         sortedTestProductsAndServicesCollection,
         originalCollection,
-        oldFolderName,
       );
     } else {
       Logger.log('[err]   no items found in the original test collection!');
@@ -111,11 +109,9 @@ const updateCollections = () => {
 
   originalProdCollections.forEach((originalCollection) => {
     if (originalCollection?.items.count() > 0) {
-      let oldFolderName;
       DataUtils.processItems(
         sortedProdProductsAndServicesCollection,
         originalCollection,
-        oldFolderName,
       );
     } else {
       Logger.log('[err]   no items found in the original production collection!');
@@ -127,6 +123,11 @@ const updateCollections = () => {
   DataUtils.removeRedundantRootFolders(sortedProdProductsAndServicesCollection);
 
   DataUtils.groupItems(
+    groupedOnesCollection,
+    sortedOnesCollection,
+  );
+
+  DataUtils.groupItems(
     groupedTestProductsAndServicesCollection,
     sortedTestProductsAndServicesCollection,
   );
@@ -136,7 +137,7 @@ const updateCollections = () => {
     sortedProdProductsAndServicesCollection,
   );
 
-  DataUtils.orderItemsAlphabetically(sortedOnesCollection);
+  DataUtils.orderItemsAlphabetically(groupedOnesCollection);
   DataUtils.orderItemsAlphabetically(groupedTestProductsAndServicesCollection);
   DataUtils.orderItemsAlphabetically(groupedProdProductsAndServicesCollection);
 
@@ -165,10 +166,10 @@ const updateCollections = () => {
     originalProdCollections,
   );
 
-  DataUtils.moveAuthMethodsToRoot(testProductsCollection, testServicesCollection);
-  DataUtils.moveAuthMethodsToRoot(prodProductsCollection, prodServicesCollection);
+  DataUtils.moveAuthMethodToRoot(testProductsCollection, testServicesCollection);
+  DataUtils.moveAuthMethodToRoot(prodProductsCollection, prodServicesCollection);
 
-  DataUtils.saveToJSON(sortedOnesCollection);
+  DataUtils.saveToJSON(groupedOnesCollection);
   DataUtils.saveToJSON(testProductsCollection);
   DataUtils.saveToJSON(testServicesCollection);
   DataUtils.saveToJSON(prodProductsCollection);

@@ -10,8 +10,8 @@ import {
   hostPlaceholders,
   services,
   servicesFolders,
-  authIgnoredFolders,
   patterns,
+  onesMethodGroups,
 } from './enums.js';
 
 const {
@@ -67,12 +67,6 @@ class DataUtils {
         .findIndex((foundPropertyPair) => foundPropertyPair.key === propertyPair.key
         && foundPropertyPair.value === propertyPair.value);
       if (index === foundIndex) return true;
-      const firstMatch = arr[foundIndex];
-      if (propertyPair.description) {
-        firstMatch.description = firstMatch.description
-          ? `${firstMatch.description};${propertyPair.description}`
-          : propertyPair.description;
-      }
 
       return false;
     });
@@ -190,13 +184,13 @@ class DataUtils {
                 ...existingItem.request.body.urlencoded.all(),
                 ...item.request.body.urlencoded.all(),
               );
-              this.sortKeysAlphabetically(existingItem.request.body.urlencoded.members);
+              if (existingItem.name !== 'Auth') this.sortKeysAlphabetically(existingItem.request.body.urlencoded.members);
             } else if (this.hasFormdataPropertiesArr(existingItem)) {
               existingItem.request.body.formdata = this.getListOfUniqueProperties(
                 ...existingItem.request.body.formdata.all(),
                 ...item.request.body.urlencoded.all(),
               );
-              this.sortKeysAlphabetically(existingItem.request.body.formdata.members);
+              if (existingItem.name !== 'Auth') this.sortKeysAlphabetically(existingItem.request.body.formdata.members);
             }
           }
         } else if (item.request.method !== HTTPMethods.GET
@@ -208,13 +202,13 @@ class DataUtils {
                 ...existingItem.request.body.formdata.all(),
                 ...item.request.body.formdata.all(),
               );
-              this.sortKeysAlphabetically(existingItem.request.body.formdata.members);
+              if (existingItem.name !== 'Auth') this.sortKeysAlphabetically(existingItem.request.body.formdata.members);
             } else if (this.hasUrlencodedPropertiesArr(existingItem)) {
               existingItem.request.body.urlencoded = this.getListOfUniqueProperties(
                 ...existingItem.request.body.urlencoded.all(),
                 ...item.request.body.formdata.all(),
               );
-              this.sortKeysAlphabetically(existingItem.request.body.urlencoded.members);
+              if (existingItem.name !== 'Auth') this.sortKeysAlphabetically(existingItem.request.body.urlencoded.members);
             }
           }
         } else if (this.hasExistingQueryProperties(item)) {
@@ -223,7 +217,7 @@ class DataUtils {
               ...existingItem.request.url.query.all(),
               ...item.request.url.query.all(),
             );
-            this.sortKeysAlphabetically(existingItem.request.url.query.members);
+            if (existingItem.name !== 'Auth') this.sortKeysAlphabetically(existingItem.request.url.query.members);
           }
         }
       }
@@ -278,36 +272,6 @@ class DataUtils {
       item.request.body.formdata.all().forEach((property) => { property.disabled = true; });
     } else if (this.hasExistingQueryProperties(item)) {
       item.request.url.query.all().forEach((property) => { property.disabled = true; });
-    }
-  }
-
-  static setFolderNamesToAuthPropertyDescriptions(item, folderName) {
-    if (item.request.url.path[1] === placeholders.LOGIN
-      || (item.request.url.path[1] === services.AUTH
-        && item.request.url.path[2] === placeholders.LOGIN)) {
-      if (item.request.method !== HTTPMethods.GET
-      && this.hasUrlencodedPropertiesArr(item)
-      && item.request.body.urlencoded.count()) {
-        item.request.body.urlencoded.all().forEach((property) => {
-          property.description = property.description
-            ? `(${property.description});${folderName}`
-            : folderName;
-        });
-      } else if (item.request.method !== HTTPMethods.GET
-      && this.hasFormdataPropertiesArr(item)
-      && item.request.body.formdata.count()) {
-        item.request.body.formdata.all().forEach((property) => {
-          property.description = property.description
-            ? `(${property.description});${folderName}`
-            : folderName;
-        });
-      } else if (this.hasExistingQueryProperties(item)) {
-        item.request.url.query.all().forEach((property) => {
-          property.description = property.description
-            ? `(${property.description});${folderName}`
-            : folderName;
-        });
-      }
     }
   }
 
@@ -381,13 +345,17 @@ class DataUtils {
   }
 
   static fixHostAndPath(item, host, port, path) {
-    if (host[0].includes(services.SIGNER.toUpperCase())
+    if (path.some((substr) => substr.includes('hs'))) {
+      delete item.request.url.port;
+      delete item.request.url.protocol;
+      path.splice(0, path.length - 1);
+      item.request.url.host = hostPlaceholders.URL;
+    } else if (host[0].includes(services.SIGNER.toUpperCase())
     || host[0].includes(services.NOTIFICATION.toUpperCase())
     || host[0].includes(services.MEDPOOL.toUpperCase())
     || host[0].includes(services.CLAIM.toUpperCase())
     || host[0].includes(services.AMANAT24.toUpperCase())
     || host[0].includes(services.AMANAT24)
-    || host[0].includes(services.EDU.toUpperCase())
     || host[0].includes(services.KASKO.toUpperCase())) {
       this.hostAndPathModify(item, host, path);
     } else if (host[0].includes('DICT')
@@ -430,10 +398,16 @@ class DataUtils {
       delete item.request.url.port;
       delete item.request.url.protocol;
       this.hostAndPathModify(item, host, path, { hostOverride: services.EUROPROTOCOL });
-    } else if (port === '8024') {
-      delete item.request.url.port;
+    } else if (host[0].includes(services.EDU.toUpperCase())
+      || host[0].includes(services.EDU)
+      || host[0] === hostPlaceholders.API_URL[0]
+      || (path[1] && path[1].includes(services.EDU))
+      || port === '8024') {
+      item.request.url.port = '8024';
       delete item.request.url.protocol;
-      this.hostAndPathModify(item, host, path, { hostOverride: services.EDU });
+      path.splice(path.indexOf(services.EDU), 1);
+      this.setPathBeginning(path);
+      item.request.url.host = hostPlaceholders.LOCALHOST;
     } else if (port === '8026') {
       delete item.request.url.port;
       delete item.request.url.protocol;
@@ -456,10 +430,6 @@ class DataUtils {
       this.hostAndPathModify(item, host, path, { hostOverride: services.MEDPOOL });
     } else if (host[0].includes(`GO${services.ASYNC.toUpperCase()}`)) {
       this.hostAndPathModify(item, host, path, { hostOverride: services.ASYNC });
-    } else if (host[0] === hostPlaceholders.API_URL[0]) {
-      this.setPathBeginning(path);
-      item.request.url.protocol = protocols.HTTPS;
-      item.request.url.host = hostPlaceholders.EDU;
     } else if (host[0].includes(services.FILEREPO.toUpperCase())) {
       this.setPathBeginning(path);
       item.request.url.protocol = protocols.HTTP;
@@ -484,7 +454,9 @@ class DataUtils {
 
   static getFolderName(item, host, port, path) {
     let folderName;
-    if (path.length > 2
+    if (item.request.url.port === '8024') {
+      folderName = services.EDU.toUpperCase();
+    } else if (path.length > 2
     && (path[0] === 'api' || path[0] === 'clients')
     && path[1] !== 'user'
     && path[1] !== 'documents'
@@ -511,10 +483,16 @@ class DataUtils {
       || host[1] === services.MEDPUL)) {
       folderName = host[1].replace('-', '_').toUpperCase();
     } else if (host.length > 1
-      && host[1] === 'amanat') {
+      && host[1] === 'amanat'
+      && host[0] !== 'shortly'
+      && host[0] !== 'esbd-ndev'
+      && path.every((substr) => !substr.includes('_search'))) {
       folderName = host[0].toUpperCase();
-    } else if (host[0].toUpperCase().includes(services.ELASTIC.toUpperCase())) {
-      folderName = this.trimPlaceholder(host[0]).toUpperCase();
+    } else if (host[0].toUpperCase().includes(services.ELASTIC.toUpperCase())
+      || path.some((substr) => substr.includes('_search'))
+      || path.some((substr) => substr.includes('_cluster'))
+      || item.name.includes('_search')) {
+      folderName = services.ELASTIC.toUpperCase();
     } else if (host[0].toUpperCase().includes(services.AMANAT24.toUpperCase())) {
       folderName = this.trimPlaceholder(host[0]).toUpperCase();
     } else if (host[2] === 'mockbin') {
@@ -525,8 +503,10 @@ class DataUtils {
       }
     } else if (host[0] === 'fcm') {
       folderName = services.NOTIFICATION.toUpperCase();
-    } else if (host[1] === 'mkb') {
+    } else if (host[1] === 'mkb' || host[0] === 'esbd-ndev') {
       folderName = services.ESBD.toUpperCase();
+    } else if (host[0] === 'shortly') {
+      folderName = services.SHORT_LINK.toUpperCase();
     } else {
       folderName = services.AUTH.toUpperCase();
     }
@@ -534,7 +514,7 @@ class DataUtils {
     return folderName;
   }
 
-  static processItems(sortedCollection, originalCollection, oldFolderName) {
+  static processItems(sortedCollection, originalCollection) {
     originalCollection.items.each((item) => {
       if (item instanceof Item) {
         const { host, path, port } = item.request.url;
@@ -544,6 +524,7 @@ class DataUtils {
           if (path.some((substr) => substr.includes('hs'))
           || (host[0] === hostPlaceholders.URL[0] && path.length === 1)) {
             const folderName = '1C';
+            if (host[0] !== hostPlaceholders.URL[0]) this.fixHostAndPath(item, host, port, path);
 
             const folder = this.getOrCreateFolder(sortedCollection, folderName);
             if (folder.items.all()
@@ -556,7 +537,6 @@ class DataUtils {
               folder.items.add(item);
             }
           } else {
-            this.setFolderNamesToAuthPropertyDescriptions(item, oldFolderName);
             this.addBearerTokenAuthIfEmpty(item);
             const updatedHost = this.fixHostAndPath(item, host, port, path);
             const folderName = this.getFolderName(item, updatedHost, port, path);
@@ -575,8 +555,7 @@ class DataUtils {
         }
       } else if (item.items) {
         Logger.log(`[inf]   processing folder: ${item.name}`);
-        oldFolderName = item.name;
-        this.processItems(sortedCollection, item, oldFolderName);
+        this.processItems(sortedCollection, item);
       }
     });
   }
@@ -652,6 +631,42 @@ class DataUtils {
                 Logger.log(`[inf]   keeping "${item.name}" inside /${folder.name}`);
                 parentFolder.items.add(item);
               }
+            } else if (host[0] === hostPlaceholders.URL[0]) {
+              if (this.notEmptyOrNotHasNumber(path[0])) {
+                let subFolderName;
+                if (path.some((substr) => substr.includes(onesMethodGroups.IE))) {
+                  subFolderName = onesMethodGroups.IE;
+                } else if (path.some((substr) => substr.toLowerCase().includes(services.CLAIM))) {
+                  subFolderName = `${services.CLAIM}s`.toUpperCase();
+                } else if (path.some((substr) => substr.toLowerCase().includes(services.CLIENT))) {
+                  subFolderName = `${services.CLIENT}s`.toUpperCase();
+                } else if (path.some((substr) => substr.toLowerCase().includes(services.KASPI))) {
+                  subFolderName = services.KASPI.toUpperCase();
+                } else if (path.some((substr) => substr.includes(onesMethodGroups.AGENT))) {
+                  subFolderName = `${onesMethodGroups.AGENT}s`.toUpperCase();
+                } else if (path.some((substr) => substr.includes(onesMethodGroups.AGREEMENT))) {
+                  subFolderName = `${onesMethodGroups.AGREEMENT}s`.toUpperCase();
+                } else if (path.some((substr) => substr.includes(onesMethodGroups.OBJECT))) {
+                  subFolderName = `${onesMethodGroups.OBJECT}s`.toUpperCase();
+                } else if (path.some((substr) => substr.includes(onesMethodGroups.PRODUCT))) {
+                  subFolderName = `${onesMethodGroups.PRODUCT}s`.toUpperCase();
+                } else if (path.some((substr) => substr.toLowerCase().includes(services.POLICY))) {
+                  subFolderName = 'POLICIES';
+                } else {
+                  [subFolderName] = path;
+                }
+
+                const subFolder = this.getOrCreateFolder(parentFolder, subFolderName);
+                if (subFolderName !== path[0]) {
+                  const subSubFolderName = path[0];
+                  const subSubFolder = this.getOrCreateFolder(subFolder, subSubFolderName);
+                  Logger.log(`[inf]   moving "${item.name}" into /${folder.name}/${subFolderName}/${subSubFolderName}`);
+                  subSubFolder.items.add(item);
+                } else {
+                  Logger.log(`[inf]   moving "${item.name}" into /${folder.name}/${subFolderName}`);
+                  subFolder.items.add(item);
+                }
+              }
             } else {
               Logger.log(`[inf]   keeping "${item.name}" inside /${folder.name}`);
               parentFolder.items.add(item);
@@ -706,7 +721,7 @@ class DataUtils {
     servicesCollection.variables = uniqueVariables;
   }
 
-  static moveAuthMethodsToRoot(productsCollection, servicesCollection) {
+  static moveAuthMethodToRoot(productsCollection, servicesCollection) {
     const itemNames = [_.capitalize(services.AUTH), placeholders.LOGIN];
     itemNames.forEach((itemName) => {
       const foundFolder = servicesCollection.items
@@ -717,7 +732,6 @@ class DataUtils {
         if (foundItemIndex !== -1) {
           Logger.log(`[inf]   moving item "${itemName}" from folder "${foundFolder.name}" to root`);
           const [foundItem] = foundFolder.items.members.splice(foundItemIndex, 1);
-          this.groupPropertiesByDescription(foundItem);
           servicesCollection.items.members.unshift(foundItem);
           productsCollection.items.members.unshift(foundItem);
         }
@@ -733,65 +747,6 @@ class DataUtils {
         this.orderItemsAlphabetically(item);
       }
     });
-  }
-
-  static groupPropertiesByDescription(item) {
-    if (item.request.method !== HTTPMethods.GET
-    && this.hasUrlencodedPropertiesArr(item)
-    && item.request.body.urlencoded.count()) {
-      item.request.body.urlencoded = this
-        .getListOfGroupedProperties(item.request.body.urlencoded.all());
-    } else if (item.request.method !== HTTPMethods.GET
-    && this.hasFormdataPropertiesArr(item)
-    && item.request.body.formdata.count()) {
-      item.request.body.formdata = this
-        .getListOfGroupedProperties(item.request.body.formdata.all());
-    }
-  }
-
-  static getListOfGroupedProperties(propertyList) {
-    const processedProperties = [];
-    const allAutogenPropertyGroups = [];
-    propertyList.forEach((property) => {
-      const splittedPropertyDescription = property.description.split(';');
-      const uniquePropertyGroups = [...new Set(splittedPropertyDescription)];
-      const uniqueAutogenPropertyGroups = uniquePropertyGroups
-        .filter((propertyGroup) => !propertyGroup.startsWith('('));
-      allAutogenPropertyGroups.push(...uniqueAutogenPropertyGroups);
-      property.description = uniquePropertyGroups;
-    });
-
-    const allUniqueAutogenPropertyGroups = [...new Set(allAutogenPropertyGroups)];
-    this.sortStringsAlphabetically(allUniqueAutogenPropertyGroups);
-
-    const allFilteredUniqueAutogenPropertyGroups = allUniqueAutogenPropertyGroups
-      .filter((uniqueAutogenPropertyGroup) => servicesFolders
-        .filter((serviceFolder) => serviceFolder !== services.AUTH)
-        .every((serviceFolder) => !uniqueAutogenPropertyGroup.toUpperCase()
-          .includes(serviceFolder.toUpperCase()))
-    && !authIgnoredFolders.includes(uniqueAutogenPropertyGroup));
-
-    allFilteredUniqueAutogenPropertyGroups.forEach((filteredUniqueAutogenPropertyGroup) => {
-      const uniqueProperties = [];
-      propertyList.forEach((property) => {
-        const uniqueNonAutogenPropertyGroups = property.description
-          .filter((propertyGroup) => propertyGroup.startsWith('('));
-        const resultProperty = structuredClone(property);
-        if (property.description.includes(filteredUniqueAutogenPropertyGroup)
-          && property.value !== '') {
-          resultProperty.description = uniqueNonAutogenPropertyGroups.length
-            ? `${filteredUniqueAutogenPropertyGroup}, ${uniqueNonAutogenPropertyGroups.join(';')}`
-            : `${filteredUniqueAutogenPropertyGroup}`;
-          uniqueProperties.push(resultProperty);
-        }
-      });
-
-      this.sortKeysAlphabetically(uniqueProperties);
-      processedProperties.push(...uniqueProperties);
-    });
-
-    const itemType = processedProperties[0] instanceof QueryParam ? QueryParam : FormParam;
-    return new PropertyList(itemType, null, processedProperties);
   }
 
   static removeRedundantRootFolders(collection, options = { onesCollection: false }) {

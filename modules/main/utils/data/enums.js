@@ -8,7 +8,6 @@ export const patterns = Object.freeze({
 
 export const protocols = Object.freeze({
   HTTP: 'http',
-  HTTPS: 'https',
 });
 
 export const placeholders = Object.freeze({
@@ -37,11 +36,6 @@ export const hostPlaceholders = Object.freeze({
   ],
   AMANAT24: [
     '{{amanat24_url}}',
-  ],
-  EDU: [
-    'edu-dev',
-    'amanat',
-    'systems',
   ],
   FILEREPO: [
     'filerepo',
@@ -74,6 +68,16 @@ export const services = Object.freeze({
   CLAIM: 'claim',
   SIGNERSCRIPT: 'signerscript',
   ASYNC: 'async',
+  POLICY: 'policy',
+  CLIENT: 'client',
+});
+
+export const onesMethodGroups = Object.freeze({
+  AGENT: 'Agent',
+  AGREEMENT: 'Agreement',
+  IE: 'IE',
+  OBJECT: 'Object',
+  PRODUCT: 'Product',
 });
 
 export const servicesFolders = Object.freeze([
@@ -100,15 +104,4 @@ export const servicesFolders = Object.freeze([
   'crawler',
   'signerscript',
   'numerator',
-]);
-
-export const authIgnoredFolders = Object.freeze([
-  'cr-lr-value',
-  'CRUD categories',
-  'HALYK HOMEBANK TEST',
-  'm-adp 1C setagent',
-  'TEST',
-  'USERS',
-  'v1',
-  'WEBBOX',
 ]);
