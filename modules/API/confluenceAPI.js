@@ -32,7 +32,7 @@ class ConfluenceAPI extends BaseAPI {
     return this.delete(`${JSONLoader.APIEndpoints.confluence.attachments}/${attachmentID}`, params);
   }
 
-  async postAttachment(pageID, fileObj, type) {
+  async createAttachment(pageID, fileObj, type) {
     this.#options.headers['X-Atlassian-Token'] = 'nocheck';
     delete this.#options.logString;
     this.#API = new ConfluenceAPI(this.#options);

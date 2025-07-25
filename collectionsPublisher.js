@@ -34,13 +34,13 @@ const publishCollections = async () => {
 
     for (const fileObj of fileObjects) {
       fileObj.fileBuffer = JSON.stringify(JSONLoader[fileObj.fileName], null, 4);
-      await confluenceAPI.postAttachment(pageID, fileObj, 'application/json');
+      await confluenceAPI.createAttachment(pageID, fileObj, 'application/json');
     }
 
     const fileObj = {};
     fileObj.file = file;
     fileObj.fileBuffer = fileBuffer;
-    await confluenceAPI.postAttachment(pageID, fileObj, 'image/png');
+    await confluenceAPI.createAttachment(pageID, fileObj, 'image/png');
   }
 
   fileObjects = fileObjects.map((fileObj) => ({
